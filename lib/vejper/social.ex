@@ -32,7 +32,7 @@ defmodule Vejper.Social do
       |> Repo.all()
 
     last_insert =
-      if first do
+      if first && Enum.count(posts) != 0 do
         Enum.max(Enum.map(posts, fn post -> post.inserted_at end), NaiveDateTime)
       else
         last_insert

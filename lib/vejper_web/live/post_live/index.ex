@@ -67,11 +67,6 @@ defmodule VejperWeb.PostLive.Index do
   end
 
   @impl true
-  def handle_event("nothing", _params, socket) do
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_event("load-more", _params, socket) do
     %{entries: posts, meta: meta} = Social.list_posts(socket.assigns.meta)
 
