@@ -21,7 +21,8 @@ config :logger, level: :info
 config :vejper, VejperWeb.Endpoint,
   force_ssl: [rewrite_on: [:x_forwarded_proto], host: nil],
   pubsub_server: Vejper.PubSub,
-  live_view: [signing_salt: "exddYNgO"]
+  live_view: [signing_salt: "exddYNgO"],
+  url: [host: "https://disastrous-hairy-bug.gigalixirapp.com"]
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
