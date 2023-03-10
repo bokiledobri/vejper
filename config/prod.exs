@@ -17,5 +17,8 @@ config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Vejper.Finch
 # Do not print debug messages in production
 config :logger, level: :info
 
+# Configures the endpoint
+config :vejper, VejperWeb.Endpoint, force_ssl: [rewrite_on: [:x_forwarded_proto], host: nil]
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
