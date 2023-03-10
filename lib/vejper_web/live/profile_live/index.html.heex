@@ -1,0 +1,36 @@
+<.header>
+  Korisnici
+</.header>
+
+<div class="flex flex-col items-center md:flex-row md:flex-wrap gap-4" id="profiles">
+  <%= for { _, profile} <- @streams.profiles do %>
+    <.link navigate={~p"/profiles/#{profile.id}"}>
+      <div class="flex flex-col gap-1 sm:gap-3 items-center bg-zinc-200 rounded cursor-pointer dark:bg-zinc-800 w-[150px] sm:w-[200px] md:w-[350px]">
+        <img
+          class="w-[100px] h-[100px] sm:w-[150px] sm:h-[150px] md:w-[300px] md:h-[300px] rounded-full"
+          src={profile.profile_image_url}
+          alt={profile.profile_image_url}
+        />
+        <h2 class="font-bold text-[1.5rem]"><%= profile.username %></h2>
+      </div>
+    </.link>
+  <% end %>
+</div>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="profile-modal"
+  show
+  on_cancel={JS.navigate(~p"/profiles")}
+>
+  <.live_component
+    module={VejperWeb.ProfileLive.FormComponent}
+    id={@profile.id || :new}
+    title={@page_title}
+    action={@live_action}
+    profile={@profile}
+    patch={~p"/profiles"}
+    current_user={@current_user}
+    uploads={@uploads}
+    uploaded_files={@uploaded_files}
+  />
+</.modal>

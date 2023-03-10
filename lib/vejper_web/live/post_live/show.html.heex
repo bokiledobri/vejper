@@ -1,0 +1,125 @@
+<div class="flex flex-col items-center justify-around gap-3 pt-1">
+  <div class="self-start pb-5">
+    <.back navigate={~p"/posts"}>Nazad</.back>
+  </div>
+  <header class="flex flex-row justify-between w-full">
+    <.link
+      href={~p"/profiles/#{@post.user.profile.id}"}
+      class="self-start flex flex-row gap-3 items-center ml-2"
+    >
+      <img src={@post.user.profile.profile_image_url} class="w-10 h-10 rounded-full" />
+      <h4 class="text-[1rem] font-bold"><%= @post.user.profile.username %></h4>
+    </.link>
+    <%= if @current_user do %>
+      <%= if @current_user.id == @post.user.id do %>
+        <.link patch={~p"/posts/show/#{@post.id}/edit"} phx-click={JS.push_focus()}>
+          <.button>Uredi</.button>
+        </.link>
+      <% end %>
+    <% end %>
+  </header>
+  <h2 class="text-[1.2rem] font-bold"><%= @post.title %></h2>
+  <div x-data={"{active: 0, items: [" <> Enum.join(Enum.map(@post.images, fn img -> Integer.to_string(img.id) end), ", ")<>"]}"}>
+    <div
+      :for={img <- @post.images}
+      x-show={Integer.to_string(img.id) <> " == items[active]"}
+      class="relative w-[80vw] h-[60vh] flex flex-col items-center"
+    >
+      <img class="h-full object-contain object-center " src={img.url} alt={img.url} />
+      <button
+        class="pl-3 absolute top-0 left-0 h-full bg-white dark:bg-black opacity-30"
+        @click="active >0 ? active-- : active = items.length-1"
+        type="button"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-6 w-6"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+      <button
+        class="pr-3 absolute top-0 right-0 h-full bg-white dark:bg-black opacity-30"
+        type="button"
+        @click="active < items.length-1 ? active++ : active= 0"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-6 w-6"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+    </div>
+  </div>
+  <p><%= @post.body %></p>
+  <div class="self-end flex flex-row gap-1 items-center">
+    <Heroicons.heart
+      phx-click={
+        if @current_user do
+          if Enum.find_index(@post.users, &(&1.id == @current_user.id)),
+            do: "remove_reaction",
+            else: "add_reaction"
+        end
+      }
+      solid={
+        if @current_user && Enum.find_index(@post.users, &(&1.id == @current_user.id)),
+          do: true,
+          else: false
+      }
+      class={"h-10 w-10 text-[#ff0000]"<> if @current_user, do: " cursor-pointer", else: ""}
+    />
+    <span><%= @post.reactions %></span>
+  </div>
+  <.awesome_input
+    show={@current_user}
+    form={@comment_form}
+    form_id="comment-form"
+    input_id="comment-input"
+  />
+  <div class="flex flex-col overflow-y-auto max-h-[60vh] border-zinc-300 dark:border-zinc-600 border-8 py-6 bg-zinc-300 dark:bg-zinc-600 items-start w-full gap-4">
+    <%= for comment <- @post.comments do %>
+      <div class="w-full p-2 flex bg-zinc-100 dark:bg-zinc-900 border-solid border-2 border-zinc-500">
+        <.link href={~p"/profiles/#{comment.user.profile.id}"}>
+          <img
+            src={comment.user.profile.profile_image_url}
+            class="rounded-full w-10 h-10"
+            alt={comment.user.profile.username}
+          />
+        </.link>
+        <div class="flex flex-col items-start p-1">
+          <.link href={~p"/profiles/#{comment.user.profile.id}"}>
+            <h5 class="font-bold"><%= comment.user.profile.username %></h5>
+          </.link>
+          <p><%= comment.body %></p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <.modal
+    :if={@live_action == :edit}
+    id="post-modal"
+    show
+    on_cancel={JS.patch(~p"/posts/show/#{@post}")}
+  >
+    <.live_component
+      module={VejperWeb.PostLive.FormComponent}
+      id={@post.id}
+      title={@page_title}
+      action={@live_action}
+      current_user={@current_user}
+      post={@post}
+      patch={~p"/posts/show/#{@post}"}
+      uploads={@uploads}
+    />
+  </.modal>
+</div>

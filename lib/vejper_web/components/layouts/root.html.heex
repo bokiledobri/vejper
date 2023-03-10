@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" style="scrollbar-gutter: stable;">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix="Vejper">
+      <%= assigns[:page_title] || "Početna" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+  <body class="bg-white dark:bg-black text-black dark:text-white antialiased">
+    <header class="fixed top-0 left-0 w-full z-30">
+      <ul class="bg-zinc-100 py-0 dark:bg-zinc-800 relative z-10 flex items-center h-[3.5rem] gap-4 px-4 sm:px-6 lg:px-8 justify-between">
+        <.link class="font-bold text-[1.5rem] text-[#ff0000]" href={~p"/"}>
+          Vejper
+        </.link>
+        <.link class="font-bold text-[1rem]" href={~p"/posts"}>Objave</.link>
+        <%= if @current_user do %>
+          <.link class="font-bold text-[1rem]" href={~p"/profiles"}>Korisnici</.link>
+          <%= if @current_user.profile do %>
+            <li x-data="{open: false}">
+              <div
+                @click="open=!open"
+                class="flex hover:bg-zinc-500 px-2 rounded cursor-pointer justify-between items-center"
+              >
+                <img
+                  id="avatarButton"
+                  type="button"
+                  class="w-10 h-10 rounded-full relative"
+                  src={@current_user.profile.profile_image_url}
+                  alt={@current_user.profile.profile_image_url}
+                />
+                <h3 class="font-bold text-[1rem] text-black dark:text-white ml-2">
+                  <%= @current_user.profile.username %>
+                </h3>
+              </div>
+              <div
+                x-show="open"
+                class="fixed w-full h-full bg-transparent z-9 left-0 top-0 "
+                @click="open = false"
+              >
+              </div>
+
+              <div
+                id="userDropdown"
+                x-show="open"
+                class="z-10 font-bold bg-white divide-y divide-zinc-100 absolute top-full right-0 rounded-lg shadow w-44 dark:bg-zinc-700 dark:divide-zinc-600"
+              >
+                <div class="px-4 py-3 text-sm text-zinc-900 dark:text-white">
+                  <div><%= @current_user.profile.username %></div>
+                  <div class="font-medium truncate"><%= @current_user.email %></div>
+                </div>
+                <ul
+                  class="py-2 text-sm text-zinc-700 dark:text-zinc-200"
+                  aria-labelledby="avatarButton"
+                >
+                  <li>
+                    <.link
+                      href={~p"/profiles/#{@current_user.profile.id}"}
+                      class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
+                    >
+                      Profil
+                    </.link>
+                  </li>
+                  <li>
+                    <.link
+                      href={~p"/users/settings"}
+                      class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
+                    >
+                      Podešavanja
+                    </.link>
+                  </li>
+                </ul>
+                <div class="py-1">
+                  <.link
+                    href={~p"/users/log_out"}
+                    method="delete"
+                    class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:text-zinc-200 dark:hover:text-white"
+                  >
+                    Odjava
+                  </.link>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        <% else %>
+          <li>
+            <.anchor href={~p"/users/register"}>
+              Novi nalog
+            </.anchor>
+          </li>
+          <li>
+            <.anchor href={~p"/users/log_in"}>
+              Prijava
+            </.anchor>
+          </li>
+        <% end %>
+      </ul>
+    </header>
+    <%= @inner_content %>
+  </body>
+</html>
