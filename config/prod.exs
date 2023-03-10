@@ -18,7 +18,10 @@ config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Vejper.Finch
 config :logger, level: :info
 
 # Configures the endpoint
-config :vejper, VejperWeb.Endpoint, force_ssl: [rewrite_on: [:x_forwarded_proto], host: nil]
+config :vejper, VejperWeb.Endpoint,
+  force_ssl: [rewrite_on: [:x_forwarded_proto], host: nil],
+  pubsub_server: Vejper.PubSub,
+  live_view: [signing_salt: "exddYNgO"]
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
