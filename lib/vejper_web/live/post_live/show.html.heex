@@ -4,7 +4,7 @@
   </div>
   <header class="flex flex-row justify-between w-full">
     <.link
-      href={~p"/profiles/#{@post.user.profile.id}"}
+      patch={~p"/profiles/#{@post.user.profile.id}"}
       class="self-start flex flex-row gap-3 items-center ml-2"
     >
       <img src={@post.user.profile.profile_image_url} class="w-10 h-10 rounded-full" />
@@ -80,7 +80,7 @@
     <span><%= @post.reactions %></span>
   </div>
   <.awesome_input
-    show={@current_user}
+    show={@current_user.profile}
     form={@comment_form}
     form_id="comment-form"
     input_id="comment-input"
@@ -88,7 +88,7 @@
   <div class="flex flex-col overflow-y-auto max-h-[60vh] border-zinc-300 dark:border-zinc-600 border-8 py-6 bg-zinc-300 dark:bg-zinc-600 items-start w-full gap-4">
     <%= for comment <- @post.comments do %>
       <div class="w-full p-2 flex bg-zinc-100 dark:bg-zinc-900 border-solid border-2 border-zinc-500">
-        <.link href={~p"/profiles/#{comment.user.profile.id}"}>
+        <.link patch={~p"/profiles/#{comment.user.profile.id}"}>
           <img
             src={comment.user.profile.profile_image_url}
             class="rounded-full w-10 h-10"
@@ -96,7 +96,7 @@
           />
         </.link>
         <div class="flex flex-col items-start p-1">
-          <.link href={~p"/profiles/#{comment.user.profile.id}"}>
+          <.link patch={~p"/profiles/#{comment.user.profile.id}"}>
             <h5 class="font-bold"><%= comment.user.profile.username %></h5>
           </.link>
           <p><%= comment.body %></p>

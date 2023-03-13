@@ -75,13 +75,23 @@ defmodule VejperWeb.Router do
         {VejperWeb.UserAuth, :ensure_authenticated},
         {VejperWeb.UserAuth, :mount_current_user}
       ] do
-      live "/users/settings", UserSettingsLive, :edit
-      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
-      live "/profiles", ProfileLive.Index, :index
       live "/profiles/new", ProfileLive.Index, :new
+      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+      live "/users/settings", UserSettingsLive, :edit
+    end
+  end
+
+  scope "/", VejperWeb do
+    pipe_through [:browser, :require_authenticated_user, :require_user_profile]
+
+    live_session :require_user_profile,
+      on_mount: [
+        {VejperWeb.UserAuth, :ensure_authenticated},
+        {VejperWeb.UserAuth, :mount_current_user},
+        {VejperWeb.UserAuth, :ensure_profile_completed}
+      ] do
       live "/profiles/edit", ProfileLive.Index, :edit
 
-      live "/profiles/:id", ProfileLive.Show, :show
       live "/profiles/show/edit", ProfileLive.Show, :edit
       live "/posts/new", PostLive.Index, :new
       live "/posts/:id/edit", PostLive.Index, :edit
@@ -98,6 +108,8 @@ defmodule VejperWeb.Router do
       on_mount: [{VejperWeb.UserAuth, :mount_current_user}] do
       live "/users/confirm/:token", UserConfirmationLive, :edit
       live "/users/confirm", UserConfirmationInstructionsLive, :new
+      live "/profiles", ProfileLive.Index, :index
+      live "/profiles/:id", ProfileLive.Show, :show
     end
   end
 end

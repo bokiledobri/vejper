@@ -155,8 +155,30 @@ defmodule VejperWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+        |> Phoenix.LiveView.put_flash(
+          :error,
+          "Morate biti prijavljeni da biste pristupili ovoj stranici"
+        )
         |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
+
+      {:halt, socket}
+    end
+  end
+
+  def on_mount(:ensure_profile_completed, _params, session, socket) do
+    socket = mount_current_user(session, socket)
+    IO.puts("ENSURE_PROFILE_COMPLETED")
+
+    if socket.assigns.current_user.profile do
+      {:cont, socket}
+    else
+      socket =
+        socket
+        |> Phoenix.LiveView.put_flash(
+          :error,
+          "Molimo dovršite pravljenje profila da biste pristupili ovoj stranici."
+        )
+        |> Phoenix.LiveView.redirect(to: ~p"/profiles/new")
 
       {:halt, socket}
     end
@@ -207,6 +229,21 @@ defmodule VejperWeb.UserAuth do
       |> put_flash(:error, "Morate biti prijavljeni da biste pristupili ovoj stranici.")
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log_in")
+      |> halt()
+    end
+  end
+
+  def require_user_profile(conn, _opts) do
+    if conn.assigns[:current_user].profile do
+      conn
+    else
+      conn
+      |> put_flash(
+        :error,
+        "Molimo dovršite pravljenje profila da biste pristupili ovoj stranici."
+      )
+      |> maybe_store_return_to()
+      |> redirect(to: ~p"/profiles/new")
       |> halt()
     end
   end
