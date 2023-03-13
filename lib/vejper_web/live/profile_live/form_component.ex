@@ -137,7 +137,7 @@ defmodule VejperWeb.ProfileLive.FormComponent do
         if socket.assigns.current_user.profile do
           [socket.assigns.current_user.profile.profile_image_url]
         else
-          ["/avatars/default.png"]
+          ["/images/default_avatar.jpg"]
         end
 
       rest ->

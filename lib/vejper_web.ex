@@ -17,7 +17,7 @@ defmodule VejperWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(social avatars assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(images social avatars assets fonts images favicon.ico robots.txt)
 
   def router do
     quote do
