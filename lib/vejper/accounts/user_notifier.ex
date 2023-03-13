@@ -8,7 +8,7 @@ defmodule Vejper.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Vejper", "bokiledobri@gmail.com"})
+      |> from({"vejper", "bokiledobri@proton.me"})
       |> subject(subject)
       |> text_body(body)
 

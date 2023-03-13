@@ -17,8 +17,8 @@ defmodule Vejper.Social do
       [%Post{}, ...]
 
   """
-  def list_posts(cursor \\ {NaiveDateTime.utc_now(), 3, true}) do
-    {last_insert, limit, first} = cursor
+  def list_posts(cursor \\ {NaiveDateTime.utc_now(), 3}) do
+    {last_insert, limit} = cursor
 
     posts =
       from(p in Post,
@@ -26,21 +26,21 @@ defmodule Vejper.Social do
         preload: :images,
         order_by: [desc: :inserted_at],
         limit: ^limit,
-        where: p.inserted_at <= ^last_insert,
+        where: p.inserted_at < ^last_insert,
         select: p
       )
       |> Repo.all()
 
     last_insert =
-      if first && Enum.count(posts) != 0 do
-        Enum.max(Enum.map(posts, fn post -> post.inserted_at end), NaiveDateTime)
+      if Enum.count(posts) != 0 do
+        Enum.min(Enum.map(posts, fn post -> post.inserted_at end), NaiveDateTime)
       else
         last_insert
       end
 
     %{
       entries: posts,
-      meta: {last_insert, limit + 3, false}
+      meta: {last_insert, limit}
     }
   end
 
@@ -76,10 +76,16 @@ defmodule Vejper.Social do
   end
 
   def create_post(%Vejper.Accounts.User{} = user, attrs \\ %{}) do
-    user
-    |> Ecto.build_assoc(:posts)
-    |> Post.changeset(attrs)
-    |> Repo.insert()
+    case user
+         |> Ecto.build_assoc(:posts)
+         |> Post.changeset(attrs)
+         |> Repo.insert() do
+      {:ok, post} ->
+        {:ok, post |> Repo.preload([:images, [user: :profile]])}
+
+      error ->
+        error
+    end
   end
 
   @doc """

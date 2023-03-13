@@ -41,16 +41,12 @@ defmodule VejperWeb.PostLive.Index do
   end
 
   @impl true
-  def handle_info({VejperWeb.PostLive.FormComponent, {:saved, _post}}, socket) do
-    %{entries: posts, meta: meta} = Social.list_posts()
-
+  def handle_info({VejperWeb.PostLive.FormComponent, {:saved, post}}, socket) do
     socket =
-      Enum.reduce(posts, socket, fn post, socket ->
-        socket
-        |> stream_insert(:posts, post)
-      end)
+      socket
+      |> stream_insert(:posts, post, at: 0)
 
-    {:noreply, assign(socket, :meta, meta)}
+    {:noreply, socket}
   end
 
   @impl true
