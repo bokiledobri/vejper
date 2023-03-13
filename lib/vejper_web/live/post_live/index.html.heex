@@ -1,8 +1,10 @@
 <header class="flex justify-between">
   <h2 class="text-[1.725rem] font-bold ">Objave</h2>
-  <.link :if={@current_user.profile} patch={~p"/posts/new"}>
-    <.button>Nova Objava</.button>
-  </.link>
+  <%= if @current_user do %>
+    <.link :if={@current_user.profile} patch={~p"/posts/new"}>
+      <.button>Nova Objava</.button>
+    </.link>
+  <% end %>
 </header>
 <div
   id="infinite-scroll"
