@@ -10,6 +10,8 @@ import Config
 config :vejper,
   ecto_repos: [Vejper.Repo]
 
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 # Configures the endpoint
 config :vejper, VejperWeb.Endpoint,
   url: [host: "localhost"],

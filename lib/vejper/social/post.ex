@@ -7,17 +7,25 @@ defmodule Vejper.Social.Post do
     field :title, :string
     belongs_to :user, Vejper.Accounts.User
     has_many :comments, Vejper.Social.Comment
-    has_many :images, Vejper.Social.Image
+    has_many :images, Vejper.Social.Image, on_replace: :delete_if_exists
     many_to_many :users, Vejper.Accounts.User, join_through: Vejper.Social.Reaction
-    field :reactions, :integer, virtual: true
+    field :reactions, :integer, default: 0
 
     timestamps()
+  end
+
+  def changeset(post, %{"old_images" => old} = attrs) do
+    post
+    |> cast(attrs, [:title, :body, :reactions])
+    |> cast_assoc(:images)
+    |> put_assoc(:images, old)
+    |> validate_required([:title, :body])
   end
 
   @doc false
   def changeset(post, attrs) do
     post
-    |> cast(attrs, [:title, :body])
+    |> cast(attrs, [:title, :body, :reactions])
     |> cast_assoc(:images)
     |> validate_required([:title, :body])
   end

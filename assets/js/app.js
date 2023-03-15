@@ -20,7 +20,6 @@ import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
-import Alpine from 'alpinejs'
 import topbar from "../vendor/topbar"
 import InfiniteScroll from "./infiniteScroll"
 
@@ -28,18 +27,9 @@ let Hooks = { InfiniteScroll }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
     params: { _csrf_token: csrfToken },
-    dom: {
-        onBeforeElUpdated(from, to) {
-            if (from._x_dataStack) {
-                window.Alpine.clone(from, to)
-            }
-        }
-    },
     hooks: Hooks
 })
 
-window.Alpine = Alpine
-Alpine.start()
 
 
 // Show progress bar on live navigation and form submits
@@ -52,7 +42,6 @@ window.addEventListener("phx:clear-input", (e) => {
         el.value = ""
     }
 })
-
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 

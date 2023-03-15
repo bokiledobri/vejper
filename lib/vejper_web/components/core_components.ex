@@ -150,13 +150,11 @@ defmodule VejperWeb.CoreComponents do
 
   def flash(assigns) do
     ~H"""
-    <div x-data="{open: true}">
+    <div>
       <div
         :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
         id={@id}
         phx-mounted={@autoshow && show("##{@id}")}
-        @click="open=false"
-        x-show="open"
         role="alert"
         class={[
           "fixed hidden top-2 right-2 w-80 sm:w-96 z-50 rounded-lg p-3 shadow-md shadow-zinc-900/5 ring-1",
@@ -175,6 +173,7 @@ defmodule VejperWeb.CoreComponents do
         <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
         <button
           :if={@close}
+          phx-click={JS.hide(to: "##{@id}")}
           type="button"
           class="group absolute top-2 right-1 p-2"
           aria-label={gettext("close")}
@@ -197,7 +196,7 @@ defmodule VejperWeb.CoreComponents do
 
   def flash_group(assigns) do
     ~H"""
-    <.flash kind={:info} title="Uspeh!" flash={@flash} />
+    <.flash kind={:info} title="Info" flash={@flash} />
     <.flash kind={:error} title="Greška!" flash={@flash} />
     <.flash
       id="disconnected"

@@ -23,6 +23,11 @@ defmodule VejperWeb.PostLive.Show do
     save_comment(socket, comment_params)
   end
 
+  def handle_event("delete", %{"comment" => comment_id}, socket) do
+    Social.delete_comment(socket.assigns.post.id, comment_id)
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_event("add_reaction", _params, socket) do
     Social.react(socket.assigns.post, socket.assigns.current_user)
@@ -31,8 +36,52 @@ defmodule VejperWeb.PostLive.Show do
 
   @impl true
   def handle_event("remove_reaction", _params, socket) do
-    IO.puts("REMOVE")
     Social.unreact(socket.assigns.post, socket.assigns.current_user)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete_post", %{"id" => id}, socket) do
+    post = Social.get_post!(id)
+
+    if socket.assigns.current_user.id == post.user.id do
+      {:ok, _} = Social.delete_post(post)
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("image-prev", _params, socket) do
+    index =
+      if socket.assigns.active_image_index == 0 do
+        Enum.count(socket.assigns.post.images) - 1
+      else
+        socket.assigns.active_image_index - 1
+      end
+
+    socket =
+      assign(socket, :active_image_index, index)
+      |> assign(:active_image, Enum.at(socket.assigns.post.images, index))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("image-next", _params, socket) do
+    index =
+      if socket.assigns.active_image_index == Enum.count(socket.assigns.post.images) - 1 do
+        0
+      else
+        socket.assigns.active_image_index + 1
+      end
+
+    socket =
+      assign(socket, :active_image_index, index)
+      |> assign(:active_image, Enum.at(socket.assigns.post.images, index))
+
     {:noreply, socket}
   end
 
@@ -43,19 +92,30 @@ defmodule VejperWeb.PostLive.Show do
   end
 
   @impl true
-  def handle_info({:reaction_added, item}, socket) do
-    post =
-      Map.put(socket.assigns.post, :reactions, socket.assigns.post.reactions + 1)
-      |> Map.put(:users, [item.user | socket.assigns.post.users])
-
+  def handle_info({:reaction_added, post}, socket) do
     {:noreply, assign(socket, :post, post)}
   end
 
   @impl true
-  def handle_info({:reaction_removed, user}, socket) do
-    post =
-      Map.put(socket.assigns.post, :reactions, socket.assigns.post.reactions - 1)
-      |> Map.put(:users, Enum.filter(socket.assigns.post.users, &(&1.id != user.id)))
+  def handle_info({:reaction_removed, post}, socket) do
+    {:noreply, assign(socket, :post, post)}
+  end
+
+  @impl true
+  def handle_info({:post_deleted, _post}, socket) do
+    socket =
+      put_flash(socket, :info, "Objava koju ste gledali upravo je obrisana")
+      |> redirect(to: ~p"/posts")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:post_updated, post}, socket) do
+    socket =
+      socket
+      |> assign(:active_image, Enum.at(post.images, 0))
+      |> assign(:active_image_index, 0)
 
     {:noreply, assign(socket, :post, post)}
   end
@@ -77,11 +137,14 @@ defmodule VejperWeb.PostLive.Show do
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
     if connected?(socket), do: Social.subscribe(id)
+    post = Social.get_post!(id)
 
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:post, Social.get_post!(id))}
+     |> assign(:active_image, Enum.at(post.images, 0))
+     |> assign(:active_image_index, 0)
+     |> assign(:post, post)}
   end
 
   defp page_title(:show), do: "Objava"

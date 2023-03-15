@@ -4,7 +4,7 @@ defmodule Vejper.Social.Image do
 
   schema "social_images" do
     field :url, :string
-    belongs_to :post, Vejper.Social.Post
+    belongs_to :post, Vejper.Social.Post, on_replace: :nilify
 
     timestamps()
   end

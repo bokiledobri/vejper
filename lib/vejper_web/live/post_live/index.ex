@@ -6,7 +6,9 @@ defmodule VejperWeb.PostLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: Social.subscribe()
     %{entries: posts, meta: meta} = Social.list_posts()
+    Enum.each(posts, fn post -> Social.subscribe(post.id) end)
 
     socket =
       socket
@@ -14,7 +16,7 @@ defmodule VejperWeb.PostLive.Index do
       |> assign(:meta, meta)
       |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
 
-    {:ok, stream(socket, :posts, posts, dom_id: &"post- #{&1.id}")}
+    {:ok, stream(socket, :posts, posts, dom_id: &"post-#{&1.id}")}
   end
 
   @impl true
@@ -41,12 +43,30 @@ defmodule VejperWeb.PostLive.Index do
   end
 
   @impl true
-  def handle_info({VejperWeb.PostLive.FormComponent, {:saved, post}}, socket) do
+  def handle_info({:post_created, post}, socket) do
     socket =
-      socket
-      |> stream_insert(:posts, post, at: 0)
+      if post.user_id != socket.assigns.current_user.id do
+        stream_insert(socket, :posts, post)
+      else
+        stream_insert(socket, :posts, post, at: 0)
+      end
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:reaction_added, post}, socket) do
+    {:noreply, stream_insert(socket, :posts, post)}
+  end
+
+  @impl true
+  def handle_info({:post_deleted, post}, socket) do
+    {:noreply, stream_delete(socket, :posts, post)}
+  end
+
+  @impl true
+  def handle_info({:reaction_removed, post}, socket) do
+    {:noreply, stream_insert(socket, :posts, post)}
   end
 
   @impl true
@@ -56,7 +76,7 @@ defmodule VejperWeb.PostLive.Index do
     if socket.assigns.current_user.id == post.user.id do
       {:ok, _} = Social.delete_post(post)
 
-      {:noreply, stream_delete(socket, :posts, post)}
+      {:noreply, socket}
     else
       {:noreply, socket}
     end

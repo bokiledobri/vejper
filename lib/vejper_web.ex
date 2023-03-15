@@ -86,6 +86,7 @@ defmodule VejperWeb do
       # Core UI components and translation
       import VejperWeb.CoreComponents
       import VejperWeb.AwesomeComponents
+      import VejperWeb.DateTimeComponent
       import VejperWeb.Gettext
 
       # Shortcut for generating JS commands

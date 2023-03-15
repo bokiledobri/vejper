@@ -5,6 +5,7 @@ defmodule Vejper.Social do
 
   import Ecto.Query, warn: false
   alias Vejper.Repo
+  alias Ecto.Multi
 
   alias Vejper.Social.{Post, Comment, Reaction}
 
@@ -17,17 +18,19 @@ defmodule Vejper.Social do
       [%Post{}, ...]
 
   """
-  def list_posts(cursor \\ {NaiveDateTime.utc_now(), 3}) do
+  def list_posts(cursor \\ {NaiveDateTime.utc_now(), 5}) do
     {last_insert, limit} = cursor
 
     posts =
       from(p in Post,
-        preload: [user: :profile],
-        preload: :images,
+        preload: [:images, [user: :profile]],
         order_by: [desc: :inserted_at],
+        left_join: u in assoc(p, :users),
+        preload: :users,
+        group_by: p.id,
         limit: ^limit,
         where: p.inserted_at < ^last_insert,
-        select: p
+        select: %{p | reactions: count(u.id)}
       )
       |> Repo.all()
 
@@ -81,7 +84,8 @@ defmodule Vejper.Social do
          |> Post.changeset(attrs)
          |> Repo.insert() do
       {:ok, post} ->
-        {:ok, post |> Repo.preload([:images, [user: :profile]])}
+        get_post!(post.id)
+        |> broadcast(:post_created)
 
       error ->
         error
@@ -101,10 +105,17 @@ defmodule Vejper.Social do
 
   """
   def update_post(%Post{} = post, attrs) do
-    post
-    |> Repo.preload(:images)
-    |> Post.changeset(attrs)
-    |> Repo.update()
+    case post
+         |> Repo.preload(:images)
+         |> Post.changeset(attrs)
+         |> Repo.update() do
+      {:ok, post} ->
+        get_post!(post.id)
+        |> broadcast(:post_updated)
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -121,6 +132,7 @@ defmodule Vejper.Social do
   """
   def delete_post(%Post{} = post) do
     Repo.delete(post)
+    broadcast(post, :post_deleted)
   end
 
   @doc """
@@ -149,25 +161,55 @@ defmodule Vejper.Social do
     |> broadcast(:comment_added)
   end
 
+  def delete_comment(post_id, comment_id) do
+    Repo.delete_all(from c in Comment, where: c.id == ^comment_id)
+    broadcast(get_post!(post_id), :post_updated)
+  end
+
   def react(%Post{} = post, %Vejper.Accounts.User{} = user) do
-    %Reaction{}
-    |> Reaction.changeset()
-    |> Ecto.Changeset.put_assoc(:user, user)
-    |> Ecto.Changeset.put_assoc(:post, post)
-    |> Repo.insert()
-    |> broadcast(:reaction_added)
+    if Enum.find(post.users, fn usr -> usr.id == user.id end) != nil do
+      {:error, nil}
+    else
+      update_assoc =
+        %Reaction{}
+        |> Reaction.changeset()
+        |> Ecto.Changeset.put_assoc(:user, user)
+        |> Ecto.Changeset.put_assoc(:post, post)
+
+      Multi.new()
+      |> Multi.insert(:update_assoc, update_assoc)
+      |> Multi.update_all(
+        :update_reactions,
+        from(p in Post, where: p.id == ^post.id, select: p.id),
+        inc: [reactions: 1]
+      )
+      |> Repo.transaction()
+      |> broadcast(:reaction_added)
+    end
   end
 
   def unreact(%Post{} = post, %Vejper.Accounts.User{} = user) do
-    from(r in Reaction,
-      where: r.post_id == ^post.id,
-      where:
-        r.user_id ==
-          ^user.id
-    )
-    |> Repo.delete_all()
+    if Enum.find(post.users, fn usr -> usr.id == user.id end) == nil do
+      {:error, nil}
+    else
+      delete_query =
+        from(r in Reaction,
+          where: r.post_id == ^post.id,
+          where:
+            r.user_id ==
+              ^user.id
+        )
 
-    broadcast(:reaction_removed, post.id, user)
+      Multi.new()
+      |> Multi.delete_all(:delete_query, delete_query)
+      |> Multi.update_all(
+        :update_reactions,
+        from(p in Post, where: p.id == ^post.id, select: p.id),
+        inc: [reactions: -1]
+      )
+      |> Repo.transaction()
+      |> broadcast(:reaction_removed)
+    end
   end
 
   def subscribe(id) when is_integer(id) do
@@ -178,8 +220,34 @@ defmodule Vejper.Social do
     Phoenix.PubSub.subscribe(Vejper.PubSub, "post-" <> id)
   end
 
+  def subscribe() do
+    Phoenix.PubSub.subscribe(Vejper.PubSub, "posts")
+  end
+
+  defp broadcast(%Post{} = post, event) do
+    Phoenix.PubSub.broadcast(
+      Vejper.PubSub,
+      "post-" <> Integer.to_string(post.id),
+      {event, post}
+    )
+
+    Phoenix.PubSub.broadcast(Vejper.PubSub, "posts", {event, post})
+
+    {:ok, post}
+  end
+
   defp broadcast({:error, _reason} = error, _event) do
     error
+  end
+
+  defp broadcast({:ok, %{update_reactions: {_, [post_id | _]}} = multi}, event) do
+    Phoenix.PubSub.broadcast(
+      Vejper.PubSub,
+      "post-" <> Integer.to_string(post_id),
+      {event, get_post!(post_id)}
+    )
+
+    {:ok, multi}
   end
 
   defp broadcast({:ok, item}, event) do
@@ -192,15 +260,5 @@ defmodule Vejper.Social do
     )
 
     {:ok, item}
-  end
-
-  defp broadcast(event, id, user) do
-    Phoenix.PubSub.broadcast(
-      Vejper.PubSub,
-      "post-" <> Integer.to_string(id),
-      {event, user}
-    )
-
-    {1, nil}
   end
 end

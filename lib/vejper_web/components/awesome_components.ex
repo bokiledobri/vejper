@@ -27,4 +27,3 @@ defmodule VejperWeb.AwesomeComponents do
     """
   end
 end
-
