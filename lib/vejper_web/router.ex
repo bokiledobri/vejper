@@ -96,6 +96,8 @@ defmodule VejperWeb.Router do
       live "/posts/new", PostLive.Index, :new
       live "/posts/:id/edit", PostLive.Index, :edit
       live "/posts/show/:id/edit", PostLive.Show, :edit
+      live "/chat", ChatLive.Index, :index
+      live "/chat/:id", ChatLive.Index, :show
     end
   end
 

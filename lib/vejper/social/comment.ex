@@ -6,8 +6,6 @@ defmodule Vejper.Social.Comment do
     field :body, :string
     belongs_to :post, Vejper.Social.Post
     belongs_to :user, Vejper.Accounts.User
-    many_to_many :users, Vejper.Accounts.User, join_through: Vejper.Social.Reaction
-    field :reactions, :integer, default: 0
 
     timestamps()
   end

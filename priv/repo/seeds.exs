@@ -9,3 +9,11 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+alias Vejper.Repo
+alias Vejper.Chat
+
+rooms = ["General", "Mods", "Attys"]
+
+rooms = Enum.map(rooms, fn n -> %{"name" => n} end)
+
+Enum.each(rooms, fn room -> Chat.create_room(room) end)

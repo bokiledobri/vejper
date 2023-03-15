@@ -6,7 +6,6 @@ defmodule Vejper.Social.Reaction do
     field :type, :string, default: "like"
     belongs_to :post, Vejper.Social.Post
     belongs_to :user, Vejper.Accounts.User
-    belongs_to :comment, Vejper.Social.Comment
 
     timestamps()
   end

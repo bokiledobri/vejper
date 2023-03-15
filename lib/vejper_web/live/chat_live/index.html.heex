@@ -1,0 +1,68 @@
+<div class="flex relative">
+  <Heroicons.bars_3
+    class="chat-rooms-section absolute z-10 cursor-pointer top-5 left-5 w-8 h-8 md:hidden"
+    phx-click={JS.toggle(to: ".chat-rooms-section")}
+  />
+  <section class="chat-rooms-section basis-full  hidden md:block shrink grow h-[90vh] bg-zinc-50 dark:bg-zinc-900 px-2 mx-2">
+    <ul id="chat-rooms" class="flex flex-col" phx-update="stream">
+      <li
+        :for={{dom_id, room} <- @streams.rooms}
+        id={dom_id}
+        class="flex flex-col cursor-pointer py-3 border-black bg-zinc-50 dark:bg-zinc-900 dark:border-white border-solid border-b-2 w-full"
+      >
+        <.link href={~p"/chat/#{room.id}"} class="basis-full">
+          <%= room.name %>
+        </.link>
+      </li>
+    </ul>
+  </section>
+  <section
+    :if={@live_action == :show}
+    class="chat-rooms-section md:block h-[90vh] shrink-0 grow basis-[80%] flex relative mx-2 px-2"
+  >
+    <ul
+      class="flex flex-col-reverse gap-2 overflow-auto h-[90%] pb-6 basis-full items-start"
+      id="chat-messages"
+      phx-update="stream"
+    >
+      <li
+        :for={{dom_id, message} <- @streams.messages}
+        id={dom_id}
+        class={"rounded-full p-2 pr-20 items-center bg-zinc-100 relative dark:bg-zinc-800 flex mb-6"<> if message.user_id == @current_user.id, do: " self-end bg-zinc-300 dark:bg-zinc-700 mr-6", else: ""}
+        phx-click={JS.toggle(to: ".chat-rooms-section")}
+      >
+        <.link patch={~p"/profiles/#{message.user.profile.id}"} class="shrink-0">
+          <img
+            src={message.user.profile.profile_image_url}
+            class="rounded-full w-10 h-10"
+            alt={message.user.profile.username}
+          />
+        </.link>
+        <div class="flex flex-col items-start p-1 basis-full">
+          <.link patch={~p"/profiles/#{message.user.profile.id}"}>
+            <h5 class="font-bold"><%= message.user.profile.username %></h5>
+          </.link>
+          <p><%= message.body %></p>
+        </div>
+        <Heroicons.trash
+          :if={message.user_id == @current_user.id}
+          phx-click="delete"
+          phx-value-comment={message.id}
+          class="py-1 self-center w-6 h-6 text-zinc-500 cursor-pointer absolute left-full inset-x-auto"
+        />
+        <.datetime
+          dt={message.inserted_at}
+          class="absolute right-5 top-full font-italic text-[0.7rem] pb-1"
+        />
+      </li>
+    </ul>
+    <div class="w-full absolute bottom-0">
+      <.awesome_input
+        show={true}
+        form={@message_form}
+        form_id="send-message-form"
+        input_id="send-message-input"
+      />
+    </div>
+  </section>
+</div>

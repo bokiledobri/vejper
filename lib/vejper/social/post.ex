@@ -14,14 +14,6 @@ defmodule Vejper.Social.Post do
     timestamps()
   end
 
-  def changeset(post, %{"old_images" => old} = attrs) do
-    post
-    |> cast(attrs, [:title, :body, :reactions])
-    |> cast_assoc(:images)
-    |> put_assoc(:images, old)
-    |> validate_required([:title, :body])
-  end
-
   @doc false
   def changeset(post, attrs) do
     post
