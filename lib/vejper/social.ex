@@ -90,31 +90,32 @@ defmodule Vejper.Social do
     end
   end
 
-  @doc """
-  Updates a post.
+  # @doc """
+  # Updates a post.
 
   ## Examples
 
-      iex> update_post(post, %{field: new_value})
-      {:ok, %Post{}}
+  #    iex> update_post(post, %{field: new_value})
+  #   {:ok, %Post{}}
+  #
+  #     iex> update_post(post, %{field: bad_value})
+  #    {:error, %Ecto.Changeset{}}
 
-      iex> update_post(post, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  # """
 
-  """
-  def update_post(%Post{} = post, attrs) do
-    case post
-         |> Repo.preload(:images)
-         |> Post.changeset(attrs)
-         |> Repo.update() do
-      {:ok, post} ->
-        get_post!(post.id)
-        |> broadcast(:post_updated)
+  #  def update_post(%Post{} = post, attrs) do
+  #   case post
+  #       |> Repo.preload(:images)
+  #      |> Post.changeset(attrs)
+  #     |> Repo.update() do
+  # {:ok, post} ->
+  #  get_post!(post.id)
+  # |> broadcast(:post_updated)
 
-      error ->
-        error
-    end
-  end
+  #     error ->
+  #      error
+  # end
+  # end
 
   @doc """
   Deletes a post.

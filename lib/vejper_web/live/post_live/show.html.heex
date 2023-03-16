@@ -12,21 +12,12 @@
     </.link>
     <%= if @current_user do %>
       <%= if @current_user.id == @post.user.id do %>
-        <div class="flex justify-around">
-          <.link
-            class="p-2 mx-2 bg-zinc-100 dark:bg-zinc-800 rounded"
-            patch={~p"/posts/show/#{@post.id}/edit"}
-            phx-click={JS.push_focus()}
-          >
-            <Heroicons.pencil_square class="mx-3 cursor-pointer w-10 h-10 text-black dark:text-white" />
-          </.link>
-          <div class="p-2 mx-2 bg-zinc-100 dark:bg-zinc-800 rounded">
-            <Heroicons.trash
-              phx-click="delete_post"
-              phx-value-id={@post.id}
-              class="mx-3 cursor-pointer w-10 h-10 text-black dark:text-white"
-            />
-          </div>
+        <div class="p-2 mx-2 bg-zinc-100 dark:bg-zinc-800 rounded">
+          <Heroicons.trash
+            phx-click="delete_post"
+            phx-value-id={@post.id}
+            class="mx-3 cursor-pointer w-10 h-10 text-black dark:text-white"
+          />
         </div>
       <% end %>
     <% end %>
