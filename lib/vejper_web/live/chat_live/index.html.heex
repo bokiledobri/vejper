@@ -6,12 +6,28 @@
   <section class="chat-rooms-section basis-full  hidden md:block shrink grow h-[90vh] bg-zinc-50 dark:bg-zinc-900 px-2 mx-2">
     <ul id="chat-rooms" class="flex flex-col" phx-update="stream">
       <li
+        :if={@current_user.chat_room == nil}
+        id="add-room-link"
+        class="flex flex-col cursor-pointer border-black bg-zinc-50 dark:bg-zinc-900 dark:border-white border-solid border-b-2 w-full"
+      >
+        <.link patch={~p"/chat/new"} class="basis-full py-3">
+          <Heroicons.plus class="w-8 h-8" />
+        </.link>
+      </li>
+      <li
         :for={{dom_id, room} <- @streams.rooms}
         id={dom_id}
-        class="flex flex-col cursor-pointer py-3 border-black bg-zinc-50 dark:bg-zinc-900 dark:border-white border-solid border-b-2 w-full"
+        class={"flex items-center cursor-pointer border-black bg-zinc-50 dark:bg-zinc-900 dark:border-white border-solid border-b-2 w-full" <> if @room  && @room.id == room.id, do: "bg-zinc-800 dark: bg-zinc-200 border-[#ff0000]", else: ""}
       >
-        <.link href={~p"/chat/#{room.id}"} class="basis-full">
+        <.link navigate={~p"/chat/#{room.id}"} class="basis-full py-3">
           <%= room.name %>
+        </.link>
+        <.link
+          :if={@current_user.chat_room == room}
+          class="ml-3 mr-1"
+          patch={~p"/chat/#{room.id}/edit"}
+        >
+          <Heroicons.pencil_square class="w-7 h-7" />
         </.link>
       </li>
     </ul>
@@ -21,17 +37,18 @@
     class="chat-rooms-section md:block h-[90vh] shrink-0 grow basis-[80%] flex relative mx-2 px-2"
   >
     <ul
-      class="flex flex-col-reverse gap-2 overflow-auto h-[90%] pb-6 basis-full items-start"
+      class="mt-16 md:mt-2 flex flex-col-reverse gap-2 overflow-auto h-[90%] pb-6 basis-full items-start"
       id="chat-messages"
+      phx-hook="MessagesInfiniteScroll"
       phx-update="stream"
     >
       <li
         :for={{dom_id, message} <- @streams.messages}
         id={dom_id}
-        class={"rounded-full p-2 pr-20 items-center bg-zinc-100 relative dark:bg-zinc-800 flex mb-6"<> if message.user_id == @current_user.id, do: " self-end bg-zinc-300 dark:bg-zinc-700 mr-6", else: ""}
+        class={"rounded-full p-2 pr-20 items-center bg-zinc-100 relative dark:bg-zinc-800 flex mb-6"<> if message.user_id == @current_user.id, do: " self-end bg-zinc-300 dark:bg-zinc-700 mr-10", else: ""}
         phx-click={JS.toggle(to: ".chat-rooms-section")}
       >
-        <.link patch={~p"/profiles/#{message.user.profile.id}"} class="shrink-0">
+        <.link navigate={~p"/profiles/#{message.user.profile.id}"} class="shrink-0">
           <img
             src={message.user.profile.profile_image_url}
             class="rounded-full w-10 h-10"
@@ -39,20 +56,22 @@
           />
         </.link>
         <div class="flex flex-col items-start p-1 basis-full">
-          <.link patch={~p"/profiles/#{message.user.profile.id}"}>
+          <.link navigate={~p"/profiles/#{message.user.profile.id}"}>
             <h5 class="font-bold"><%= message.user.profile.username %></h5>
           </.link>
-          <p><%= message.body %></p>
+          <p class={if message.state == "deleted", do: "text-zinc-500 italic", else: ""}>
+            <%= if message.state == "deleted", do: "Poruka obrisana", else: message.body %>
+          </p>
         </div>
         <Heroicons.trash
-          :if={message.user_id == @current_user.id}
-          phx-click="delete"
-          phx-value-comment={message.id}
+          :if={message.user_id == @current_user.id && message.state != "deleted"}
+          phx-click="delete-message"
+          phx-value-message={message.id}
           class="py-1 self-center w-6 h-6 text-zinc-500 cursor-pointer absolute left-full inset-x-auto"
         />
         <.datetime
           dt={message.inserted_at}
-          class="absolute right-5 top-full font-italic text-[0.7rem] pb-1"
+          class="absolute right-5 top-full italic text-[0.7rem] pb-1"
         />
       </li>
     </ul>
@@ -66,3 +85,19 @@
     </div>
   </section>
 </div>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="chat-room-modal"
+  show
+  on_cancel={JS.navigate(~p"/chat")}
+>
+  <.live_component
+    module={VejperWeb.ChatLive.AddRoomForm}
+    id={@room.id || :new}
+    title={@page_title}
+    action={@live_action}
+    current_user={@current_user}
+    room={@room}
+    patch={~p"/chat"}
+  />
+</.modal>

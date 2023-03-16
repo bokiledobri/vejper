@@ -167,7 +167,6 @@ defmodule VejperWeb.UserAuth do
 
   def on_mount(:ensure_profile_completed, _params, session, socket) do
     socket = mount_current_user(session, socket)
-    IO.puts("ENSURE_PROFILE_COMPLETED")
 
     if socket.assigns.current_user.profile do
       {:cont, socket}

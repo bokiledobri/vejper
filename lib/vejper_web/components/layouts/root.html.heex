@@ -14,13 +14,13 @@
   <body class="bg-white dark:bg-black text-black dark:text-white antialiased">
     <header class="fixed top-0 left-0 w-full z-30">
       <ul class="bg-zinc-100 py-0 dark:bg-zinc-800 relative z-10 flex items-center h-[3.5rem] gap-4 px-4 sm:px-6 lg:px-8 justify-between">
-        <.link class="font-bold text-[1.5rem] text-[#ff0000]" href={~p"/"}>
+        <.link class="font-bold text-[1.5rem] text-[#ff0000]" navigate={~p"/"}>
           Vejper
         </.link>
-        <.link class="font-bold text-[1rem]" href={~p"/posts"}>Objave</.link>
+        <.link class="font-bold text-[1rem]" navigate={~p"/posts"}>Objave</.link>
         <%= if @current_user do %>
-          <.link class="font-bold text-[1rem]" href={~p"/profiles"}>Korisnici</.link>
-          <.link class="font-bold text-[1rem]" href={~p"/chat"}>Ćaskanje</.link>
+          <.link class="font-bold text-[1rem]" navigate={~p"/profiles"}>Korisnici</.link>
+          <.link class="font-bold text-[1rem]" navigate={~p"/chat"}>Ćaskanje</.link>
           <li>
             <div
               phx-click={
@@ -73,7 +73,7 @@
                 <%= if @current_user.profile do %>
                   <li>
                     <.link
-                      href={~p"/profiles/#{@current_user.profile.id}"}
+                      navigate={~p"/profiles/#{@current_user.profile.id}"}
                       class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
                     >
                       Profil
@@ -82,7 +82,7 @@
                 <% else %>
                   <li>
                     <.link
-                      href={~p"/profiles/new"}
+                      navigate={~p"/profiles/new"}
                       class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
                     >
                       Dovrši profil
@@ -91,7 +91,7 @@
                 <% end %>
                 <li>
                   <.link
-                    href={~p"/users/settings"}
+                    navigate={~p"/users/settings"}
                     class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
                   >
                     Podešavanja
@@ -100,7 +100,7 @@
               </ul>
               <div class="py-1">
                 <.link
-                  href={~p"/users/log_out"}
+                  navigate={~p"/users/log_out"}
                   method="delete"
                   class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:text-zinc-200 dark:hover:text-white"
                 >

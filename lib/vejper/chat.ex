@@ -57,14 +57,16 @@ defmodule Vejper.Chat do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_room(attrs \\ %{}) do
-    %Room{}
+  def create_room(%Vejper.Accounts.User{} = user, attrs \\ %{}) do
+    user
+    |> Ecto.build_assoc(:chat_room)
     |> Room.changeset(attrs)
     |> Repo.insert()
     |> broadcast(:room_created, :all)
   end
 
   @doc """
+  @doc \"""
   Updates a room.
 
   ## Examples
@@ -122,18 +124,42 @@ defmodule Vejper.Chat do
     |> broadcast(:message_sent)
   end
 
-  def delete_message(room_id, message_id) do
-    Repo.update_all(from(m in Message, where: m.id == ^message_id), set: [state: "deleted"])
-    broadcast({:ok, get_room!(room_id)}, :post_updated)
+  def get_message!(id) do
+    Repo.get!(Message, id)
+    |> Repo.preload([:room, [user: :profile]])
   end
 
-  def list_messages(room_id) do
-    from(m in Message,
-      where: m.room_id == ^room_id,
-      order_by: [desc: :inserted_at],
-      preload: [user: :profile]
-    )
-    |> Repo.all()
+  def delete_message(message) do
+    message
+    |> change_message(%{"state" => "deleted"})
+    |> Repo.update()
+    |> broadcast(:message_deleted)
+  end
+
+  def list_messages(room_id, cursor \\ {NaiveDateTime.utc_now(), 10}) do
+    {last_insert, limit} = cursor
+
+    messages =
+      from(m in Message,
+        where: m.room_id == ^room_id,
+        order_by: [desc: :inserted_at],
+        preload: [user: :profile],
+        limit: ^limit,
+        where: m.inserted_at < ^last_insert
+      )
+      |> Repo.all()
+
+    last_insert =
+      if Enum.count(messages) != 0 do
+        Enum.min(Enum.map(messages, fn message -> message.inserted_at end), NaiveDateTime)
+      else
+        last_insert
+      end
+
+    %{
+      entries: messages,
+      meta: {last_insert, limit}
+    }
   end
 
   def change_message(%Message{} = room, attrs \\ %{}) do

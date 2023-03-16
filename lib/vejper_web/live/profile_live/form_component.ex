@@ -93,7 +93,7 @@ defmodule VejperWeb.ProfileLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Profil uspešno izmenjen")
-         |> redirect(to: socket.assigns.patch)}
+         |> push_navigate(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
@@ -111,7 +111,7 @@ defmodule VejperWeb.ProfileLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Profil uspešno kreiran")
-         |> redirect(to: socket.assigns.patch)}
+         |> push_navigate(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}

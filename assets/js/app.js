@@ -21,9 +21,25 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
-import InfiniteScroll from "./infiniteScroll"
+import infiniteScroll from "./infiniteScroll"
+let documentScroll = () => {
+    let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+    let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
+    let clientHeight = document.documentElement.clientHeight
 
-let Hooks = { InfiniteScroll }
+    return scrollTop / (scrollHeight - clientHeight) * 100
+}
+
+let messagesScroll = () => {
+    item = document.querySelector("#chat-messages")
+    let scrollTop = item.scrollTop
+    let scrollHeight = item.scrollHeight
+    let clientHeight = item.clientHeight
+
+    return scrollTop / (scrollHeight - clientHeight) * 100
+}
+
+let Hooks = { InfiniteScroll: infiniteScroll(documentScroll, () => window), MessagesInfiniteScroll: infiniteScroll(messagesScroll, () => document.querySelector("#chat-messages")) }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
     params: { _csrf_token: csrfToken },

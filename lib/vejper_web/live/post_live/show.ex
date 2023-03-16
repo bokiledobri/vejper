@@ -105,7 +105,7 @@ defmodule VejperWeb.PostLive.Show do
   def handle_info({:post_deleted, _post}, socket) do
     socket =
       put_flash(socket, :info, "Objava koju ste gledali upravo je obrisana")
-      |> redirect(to: ~p"/posts")
+      |> push_navigate(to: ~p"/posts")
 
     {:noreply, socket}
   end

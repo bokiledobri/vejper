@@ -1,7 +1,7 @@
 defmodule VejperWeb.DateTimeComponent do
   use Phoenix.Component
   attr :dt, :any, required: true
-  attr :class, :string, default: "self-end font-italic text-[0.7rem]"
+  attr :class, :string, default: "self-end italic text-[0.7rem]"
 
   def datetime(assigns) do
     ~H"""

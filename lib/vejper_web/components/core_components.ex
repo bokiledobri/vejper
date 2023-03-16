@@ -599,7 +599,7 @@ defmodule VejperWeb.CoreComponents do
   def anchor(assigns) do
     ~H"""
     <.link
-      href={@href}
+      navigate={@href}
       class="hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded text-[1.2rem] leading-6 text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-300 font-semibold hover:text-zinc-700"
       method={@method}
     >
