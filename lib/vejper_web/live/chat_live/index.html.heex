@@ -3,12 +3,13 @@
     class="chat-rooms-section absolute z-10 cursor-pointer top-5 left-5 w-8 h-8 md:hidden"
     phx-click={JS.toggle(to: ".chat-rooms-section")}
   />
-  <section class="chat-rooms-section basis-full  hidden md:block shrink grow h-[90vh] bg-zinc-50 dark:bg-zinc-900 px-2 mx-2">
-    <ul id="chat-rooms" class="flex flex-col" phx-update="stream">
+  <section class="chat-rooms-section basis-full rounded  hidden md:block shrink grow h-[90vh] bg-zinc-50 dark:bg-zinc-900 px-2 mx-2">
+    <ul id="chat-rooms" class="flex flex-col pr-2" phx-update="stream">
       <li
         :if={@current_user.chat_room == nil}
         id="add-room-link"
-        class="flex flex-col cursor-pointer border-black bg-zinc-50 dark:bg-zinc-900 dark:border-white border-solid border-b-2 w-full"
+        class="flex flex-col cursor-pointer w-full items-center"
+        phx-click={JS.toggle(to: ".chat-rooms-section")}
       >
         <.link patch={~p"/chat/new"} class="basis-full py-3">
           <Heroicons.plus class="w-8 h-8" />
@@ -17,9 +18,9 @@
       <li
         :for={{dom_id, room} <- @streams.rooms}
         id={dom_id}
-        class={"flex items-center cursor-pointer border-black bg-zinc-50 dark:bg-zinc-900 dark:border-white border-solid border-b-2 w-full" <> if @room  && @room.id == room.id, do: "bg-zinc-800 dark: bg-zinc-200 border-[#ff0000]", else: ""}
+        class={"flex cursor-pointer w-full px-5 items-center m-2 " <> if @room  && @room.id == room.id, do: "bg-zinc-800 dark: bg-zinc-200 rounded", else: ""}
       >
-        <.link navigate={~p"/chat/#{room.id}"} class="basis-full py-3">
+        <.link navigate={~p"/chat/#{room.id}"} class="basis-full font-bold py-3">
           <%= room.name %>
         </.link>
         <.link
@@ -46,7 +47,6 @@
         :for={{dom_id, message} <- @streams.messages}
         id={dom_id}
         class={"rounded-full p-2 pr-20 items-center bg-zinc-100 relative dark:bg-zinc-800 flex mb-6"<> if message.user_id == @current_user.id, do: " self-end bg-zinc-300 dark:bg-zinc-700 mr-10", else: ""}
-        phx-click={JS.toggle(to: ".chat-rooms-section")}
       >
         <.link navigate={~p"/profiles/#{message.user.profile.id}"} class="shrink-0">
           <img
