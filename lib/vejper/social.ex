@@ -25,6 +25,7 @@ defmodule Vejper.Social do
       from(p in Post,
         preload: [:images, [user: :profile]],
         order_by: [desc: :inserted_at],
+        order_by: [desc: :id],
         left_join: u in assoc(p, :users),
         preload: :users,
         group_by: p.id,
@@ -62,8 +63,6 @@ defmodule Vejper.Social do
 
   """
   def get_post!(id) do
-    comments = from c in Comment, order_by: [desc: :inserted_at], preload: [user: :profile]
-
     from(p in Post,
       as: :post,
       where: p.id == ^id,
@@ -71,7 +70,6 @@ defmodule Vejper.Social do
       group_by: p.id,
       preload: [user: :profile],
       preload: :images,
-      preload: [comments: ^comments],
       preload: :users,
       select_merge: %{reactions: count(u.id)}
     )
@@ -148,6 +146,33 @@ defmodule Vejper.Social do
     Post.changeset(post, attrs)
   end
 
+  def list_comments(post_id, cursor \\ {NaiveDateTime.utc_now(), 10}) do
+    {last_insert, limit} = cursor
+
+    comments =
+      from(c in Comment,
+        where: c.post_id == ^post_id,
+        order_by: [desc: :inserted_at],
+        order_by: [desc: :id],
+        preload: [user: :profile],
+        limit: ^limit,
+        where: c.inserted_at < ^last_insert
+      )
+      |> Repo.all()
+
+    last_insert =
+      if Enum.count(comments) != 0 do
+        Enum.min(Enum.map(comments, fn comment -> comment.inserted_at end), NaiveDateTime)
+      else
+        last_insert
+      end
+
+    %{
+      entries: comments,
+      meta: {last_insert, limit}
+    }
+  end
+
   def change_comment(%Comment{} = comment, attrs \\ %{}) do
     Comment.changeset(comment, attrs)
   end
@@ -161,9 +186,10 @@ defmodule Vejper.Social do
     |> broadcast(:comment_added)
   end
 
-  def delete_comment(post_id, comment_id) do
-    Repo.delete_all(from c in Comment, where: c.id == ^comment_id)
-    broadcast(get_post!(post_id), :post_updated)
+  def delete_comment(comment_id) do
+    Repo.get!(Comment, comment_id)
+    |> Repo.delete()
+    |> broadcast(:comment_removed)
   end
 
   def react(%Post{} = post, %Vejper.Accounts.User{} = user) do

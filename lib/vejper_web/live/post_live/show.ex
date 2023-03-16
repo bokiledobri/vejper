@@ -24,7 +24,7 @@ defmodule VejperWeb.PostLive.Show do
   end
 
   def handle_event("delete", %{"comment" => comment_id}, socket) do
-    Social.delete_comment(socket.assigns.post.id, comment_id)
+    Social.delete_comment(comment_id)
     {:noreply, socket}
   end
 
@@ -86,9 +86,27 @@ defmodule VejperWeb.PostLive.Show do
   end
 
   @impl true
+  def handle_event("load-more", _params, socket) do
+    %{entries: comments, meta: meta} =
+      Social.list_comments(socket.assigns.post.id, socket.assigns.meta)
+
+    socket =
+      Enum.reduce(comments, socket, fn comment, socket ->
+        socket
+        |> stream_insert(:comments, comment)
+      end)
+
+    {:noreply, socket |> assign(:meta, meta)}
+  end
+
+  @impl true
   def handle_info({:comment_added, comment}, socket) do
-    post = Map.put(socket.assigns.post, :comments, [comment | socket.assigns.post.comments])
-    {:noreply, assign(socket, :post, post)}
+    {:noreply, stream_insert(socket, :comments, comment, at: 0)}
+  end
+
+  @impl true
+  def handle_info({:comment_removed, comment}, socket) do
+    {:noreply, stream_delete(socket, :comments, comment)}
   end
 
   @impl true
@@ -138,13 +156,16 @@ defmodule VejperWeb.PostLive.Show do
   def handle_params(%{"id" => id}, _, socket) do
     if connected?(socket), do: Social.subscribe(id)
     post = Social.get_post!(id)
+    %{entries: comments, meta: meta} = Social.list_comments(id)
 
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
      |> assign(:active_image, Enum.at(post.images, 0))
      |> assign(:active_image_index, 0)
-     |> assign(:post, post)}
+     |> assign(:post, post)
+     |> assign(:meta, meta)
+     |> stream(:comments, comments, dom_id: &"comment-#{&1.id}")}
   end
 
   defp page_title(:show), do: "Objava"

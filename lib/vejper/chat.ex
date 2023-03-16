@@ -143,6 +143,7 @@ defmodule Vejper.Chat do
       from(m in Message,
         where: m.room_id == ^room_id,
         order_by: [desc: :inserted_at],
+        order_by: [desc: :id],
         preload: [user: :profile],
         limit: ^limit,
         where: m.inserted_at < ^last_insert

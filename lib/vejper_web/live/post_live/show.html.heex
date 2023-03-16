@@ -101,9 +101,17 @@
       input_id="comment-input"
     />
   <% end %>
-  <div class="flex flex-col overflow-y-auto max-h-[60vh] border-zinc-300 dark:border-zinc-600 border-8 py-6 bg-zinc-300 dark:bg-zinc-600 items-start w-full gap-4">
-    <%= for comment <- @post.comments do %>
-      <div class="w-full p-2 relative  flex bg-zinc-100 dark:bg-zinc-900 border-solid border-2 border-zinc-500">
+  <ul
+    phx-update="stream"
+    id="post-comments"
+    class="flex flex-col overflow-y-auto max-h-[60vh] border-zinc-300 dark:border-zinc-600 border-8 py-6 bg-zinc-300 dark:bg-zinc-600 items-start w-full gap-4"
+    phx-hook="CommentsInfiniteScroll"
+  >
+    <%= for {dom_id, comment} <- @streams.comments do %>
+      <li
+        id={dom_id}
+        class="w-full p-2 relative  flex bg-zinc-100 dark:bg-zinc-900 border-solid border-2 border-zinc-500"
+      >
         <.link navigate={~p"/profiles/#{comment.user.profile.id}"} class="shrink-0">
           <img
             src={comment.user.profile.profile_image_url}
@@ -127,9 +135,9 @@
           dt={comment.inserted_at}
           class="absolute right-2 bottom-1 font-italic text-[0.7rem] "
         />
-      </div>
+      </li>
     <% end %>
-  </div>
+  </ul>
 
   <.modal
     :if={@live_action == :edit}

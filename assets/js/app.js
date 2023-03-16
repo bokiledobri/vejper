@@ -30,16 +30,23 @@ let documentScroll = () => {
     return scrollTop / (scrollHeight - clientHeight) * 100
 }
 
-let messagesScroll = () => {
-    item = document.querySelector("#chat-messages")
-    let scrollTop = item.scrollTop
-    let scrollHeight = item.scrollHeight
-    let clientHeight = item.clientHeight
+messagesEl = () => document.querySelector("#chat-messages")
+commentsEl = () => document.querySelector("#post-comments")
+let elementScroll = (el) => {
+    return () => {
+        item = el()
+        let scrollTop = item.scrollTop
+        let scrollHeight = item.scrollHeight
+        let clientHeight = item.clientHeight
 
-    return scrollTop / (scrollHeight - clientHeight) * 100
+        return scrollTop / (scrollHeight - clientHeight) * 100
+    }
 }
-
-let Hooks = { InfiniteScroll: infiniteScroll(documentScroll, () => window), MessagesInfiniteScroll: infiniteScroll(messagesScroll, () => document.querySelector("#chat-messages")) }
+commentsInfiniteScroll = infiniteScroll(elementScroll(commentsEl), commentsEl)
+messagesInfiniteScroll = infiniteScroll(elementScroll(messagesEl), messagesEl)
+let Hooks = {
+    InfiniteScroll: infiniteScroll(documentScroll, () => window), CommentsInfiniteScroll: commentsInfiniteScroll, MessagesInfiniteScroll: messagesInfiniteScroll
+}
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
     params: { _csrf_token: csrfToken },
