@@ -13,8 +13,8 @@ defmodule VejperWeb.PostLive.Index do
     socket =
       socket
       |> assign(:uploaded_files, [])
-      |> assign(:meta, meta)
       |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
+      |> assign(:meta, meta)
 
     {:ok, stream(socket, :posts, posts, dom_id: &"post-#{&1.id}")}
   end

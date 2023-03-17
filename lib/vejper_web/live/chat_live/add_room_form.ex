@@ -54,7 +54,7 @@ defmodule VejperWeb.ChatLive.AddRoomForm do
   defp save_room(:new, params, socket) do
     case Chat.create_room(socket.assigns.current_user, params) do
       {:ok, _room} ->
-        {:noreply, push_navigate(socket, to: ~p"/chat")}
+        {:noreply, push_navigate(socket, to: ~p"/caskanje")}
 
       {:error, changeset} ->
         {:noreply, assign_form(socket, changeset)}
@@ -64,7 +64,7 @@ defmodule VejperWeb.ChatLive.AddRoomForm do
   defp save_room(:edit, params, socket) do
     case Chat.update_room(socket.assigns.room, params) do
       {:ok, _room} ->
-        {:noreply, push_navigate(socket, to: ~p"/chat")}
+        {:noreply, push_navigate(socket, to: ~p"/caskanje")}
 
       {:error, changeset} ->
         {:noreply, assign_form(socket, changeset)}

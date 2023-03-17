@@ -17,10 +17,11 @@
         <.link class="font-bold text-[1.5rem] text-[#ff0000]" navigate={~p"/"}>
           Vejper
         </.link>
-        <.link class="font-bold text-[1rem]" navigate={~p"/posts"}>Objave</.link>
+        <.link class="font-bold text-[1rem]" navigate={~p"/objave"}>Objave</.link>
+        <.link class="font-bold text-[1rem]" navigate={~p"/oglasi"}>Oglasi</.link>
         <%= if @current_user do %>
-          <.link class="font-bold text-[1rem]" navigate={~p"/profiles"}>Korisnici</.link>
-          <.link class="font-bold text-[1rem]" navigate={~p"/chat"}>Ćaskanje</.link>
+          <.link class="font-bold text-[1rem]" navigate={~p"/profili"}>Korisnici</.link>
+          <.link class="font-bold text-[1rem]" navigate={~p"/caskanje"}>Ćaskanje</.link>
           <li>
             <div
               phx-click={
@@ -73,7 +74,7 @@
                 <%= if @current_user.profile do %>
                   <li>
                     <.link
-                      navigate={~p"/profiles/#{@current_user.profile.id}"}
+                      navigate={~p"/profil/#{@current_user.profile.id}"}
                       class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
                     >
                       Profil
@@ -82,7 +83,7 @@
                 <% else %>
                   <li>
                     <.link
-                      navigate={~p"/profiles/new"}
+                      navigate={~p"/profili/novi"}
                       class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
                     >
                       Dovrši profil
@@ -91,7 +92,7 @@
                 <% end %>
                 <li>
                   <.link
-                    navigate={~p"/users/settings"}
+                    navigate={~p"/nalog/podesavanja"}
                     class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
                   >
                     Podešavanja
@@ -100,7 +101,7 @@
               </ul>
               <div class="py-1">
                 <.link
-                  href={~p"/users/log_out"}
+                  href={~p"/nalog/odjava"}
                   method="delete"
                   class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:text-zinc-200 dark:hover:text-white"
                 >
@@ -111,12 +112,12 @@
           </li>
         <% else %>
           <li>
-            <.anchor href={~p"/users/log_in"}>
+            <.anchor href={~p"/nalog/prijava"}>
               Prijava
             </.anchor>
           </li>
           <li>
-            <.anchor href={~p"/users/register"}>
+            <.anchor href={~p"/nalog/novi"}>
               Novi nalog
             </.anchor>
           </li>

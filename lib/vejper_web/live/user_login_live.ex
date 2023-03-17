@@ -8,21 +8,21 @@ defmodule VejperWeb.UserLoginLive do
         Prijava
         <:subtitle>
           Nemate nalog?
-          <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/nalog/novi"} class="font-semibold text-brand hover:underline">
             Napravite
           </.link>
           novi nalog.
         </:subtitle>
       </.header>
 
-      <.simple_form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
+      <.simple_form for={@form} id="login_form" action={~p"/nalog/prijava"} phx-update="ignore">
         <.input field={@form[:email]} type="email" label="Email" required />
         <.input field={@form[:password]} type="password" label="Lozinka" required />
 
         <:actions>
           <.input field={@form[:remember_me]} type="checkbox" label="Ostavi me prijavljenu/nog" />
           <.link
-            href={~p"/users/reset_password"}
+            href={~p"/nalog/nova_lozinka"}
             class="dark:text-zinc-200 dark:hover:text-zinc-300 text-sm font-semibold"
           >
             Zaboravljena lozinka?

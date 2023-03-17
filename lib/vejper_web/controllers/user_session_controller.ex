@@ -10,7 +10,7 @@ defmodule VejperWeb.UserSessionController do
 
   def create(conn, %{"_action" => "password_updated"} = params) do
     conn
-    |> put_session(:user_return_to, ~p"/users/settings")
+    |> put_session(:user_return_to, ~p"/nalog/podesavanja")
     |> create(params, "Lozinka uspešno izmenjena!")
   end
 
@@ -30,7 +30,7 @@ defmodule VejperWeb.UserSessionController do
       conn
       |> put_flash(:error, "Neispravna email adresa ili lozinka")
       |> put_flash(:email, String.slice(email, 0, 160))
-      |> redirect(to: ~p"/users/log_in")
+      |> redirect(to: ~p"/nalog/prijava")
     end
   end
 

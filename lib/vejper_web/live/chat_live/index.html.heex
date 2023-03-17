@@ -11,7 +11,7 @@
         class="flex flex-col cursor-pointer w-full items-center"
         phx-click={JS.toggle(to: ".chat-rooms-section")}
       >
-        <.link patch={~p"/chat/new"} class="basis-full py-3">
+        <.link patch={~p"/caskanje/nova_soba"} class="basis-full py-3">
           <Heroicons.plus class="w-8 h-8" />
         </.link>
       </li>
@@ -20,13 +20,13 @@
         id={dom_id}
         class={"flex cursor-pointer w-full px-5 items-center m-2 " <> if @room  && @room.id == room.id, do: "bg-zinc-800 dark: bg-zinc-200 rounded", else: ""}
       >
-        <.link navigate={~p"/chat/#{room.id}"} class="basis-full font-bold py-3">
+        <.link navigate={~p"/caskanje/#{room.id}"} class="basis-full font-bold py-3">
           <%= room.name %>
         </.link>
         <.link
           :if={@current_user.chat_room == room}
           class="ml-3 mr-1"
-          patch={~p"/chat/#{room.id}/edit"}
+          patch={~p"/caskanje/sobe/#{room.id}/uredi"}
         >
           <Heroicons.pencil_square class="w-7 h-7" />
         </.link>
@@ -48,7 +48,7 @@
         id={dom_id}
         class={"rounded-full p-2 pr-20 items-center bg-zinc-100 relative dark:bg-zinc-800 flex mb-6"<> if message.user_id == @current_user.id, do: " self-end bg-zinc-300 dark:bg-zinc-700 mr-10", else: ""}
       >
-        <.link navigate={~p"/profiles/#{message.user.profile.id}"} class="shrink-0">
+        <.link navigate={~p"/profil/#{message.user.profile.id}"} class="shrink-0">
           <img
             src={message.user.profile.profile_image_url}
             class="rounded-full w-10 h-10"
@@ -56,7 +56,7 @@
           />
         </.link>
         <div class="flex flex-col items-start p-1 basis-full">
-          <.link navigate={~p"/profiles/#{message.user.profile.id}"}>
+          <.link navigate={~p"/profil/#{message.user.profile.id}"}>
             <h5 class="font-bold"><%= message.user.profile.username %></h5>
           </.link>
           <p class={if message.state == "deleted", do: "text-zinc-500 italic", else: ""}>
@@ -89,7 +89,7 @@
   :if={@live_action in [:new, :edit]}
   id="chat-room-modal"
   show
-  on_cancel={JS.navigate(~p"/chat")}
+  on_cancel={JS.navigate(~p"/caskanje")}
 >
   <.live_component
     module={VejperWeb.ChatLive.AddRoomForm}
@@ -98,6 +98,6 @@
     action={@live_action}
     current_user={@current_user}
     room={@room}
-    patch={~p"/chat"}
+    patch={~p"/caskanje"}
   />
 </.modal>

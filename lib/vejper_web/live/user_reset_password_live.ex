@@ -27,9 +27,9 @@ defmodule VejperWeb.UserResetPasswordLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
+        <.link href={~p"/nalog/novi"}>Novi nalog</.link>
         |
-        <.link href={~p"/users/log_in"}>Log in</.link>
+        <.link href={~p"/nalog/prijava"}>Prijava</.link>
       </p>
     </div>
     """
@@ -58,7 +58,7 @@ defmodule VejperWeb.UserResetPasswordLive do
         {:noreply,
          socket
          |> put_flash(:info, "Lozinka uspešno promenjena")
-         |> redirect(to: ~p"/users/log_in")}
+         |> redirect(to: ~p"/nalog/prijava")}
 
       {:error, changeset} ->
         {:noreply, assign_form(socket, Map.put(changeset, :action, :insert))}

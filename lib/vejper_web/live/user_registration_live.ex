@@ -11,7 +11,7 @@ defmodule VejperWeb.UserRegistrationLive do
         Novi nalog
         <:subtitle>
           Imate nalog?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/nalog/prijava"} class="font-semibold text-brand hover:underline">
             Prijava
           </.link>
         </:subtitle>
@@ -23,7 +23,7 @@ defmodule VejperWeb.UserRegistrationLive do
         phx-submit="save"
         phx-change="validate"
         phx-trigger-action={@trigger_submit}
-        action={~p"/users/log_in?_action=registered"}
+        action={~p"/nalog/prijava?_action=registered"}
         method="post"
       >
         <.input field={@form[:email]} type="email" label="Email" required />
@@ -54,7 +54,7 @@ defmodule VejperWeb.UserRegistrationLive do
         {:ok, _} =
           Accounts.deliver_user_confirmation_instructions(
             user,
-            &url(~p"/users/confirm/#{&1}")
+            &url(~p"/nalog/potvrda/#{&1}")
           )
 
         changeset = Accounts.change_user_registration(user)

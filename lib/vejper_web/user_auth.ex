@@ -159,7 +159,7 @@ defmodule VejperWeb.UserAuth do
           :error,
           "Morate biti prijavljeni da biste pristupili ovoj stranici"
         )
-        |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
+        |> Phoenix.LiveView.redirect(to: ~p"/nalog/prijava")
 
       {:halt, socket}
     end
@@ -177,7 +177,7 @@ defmodule VejperWeb.UserAuth do
           :error,
           "Molimo dovršite pravljenje profila da biste pristupili ovoj stranici."
         )
-        |> Phoenix.LiveView.redirect(to: ~p"/profiles/new")
+        |> Phoenix.LiveView.redirect(to: ~p"/profili/novi")
 
       {:halt, socket}
     end
@@ -227,7 +227,7 @@ defmodule VejperWeb.UserAuth do
       conn
       |> put_flash(:error, "Morate biti prijavljeni da biste pristupili ovoj stranici.")
       |> maybe_store_return_to()
-      |> redirect(to: ~p"/users/log_in")
+      |> redirect(to: ~p"/nalog/prijava")
       |> halt()
     end
   end
@@ -242,7 +242,7 @@ defmodule VejperWeb.UserAuth do
         "Molimo dovršite pravljenje profila da biste pristupili ovoj stranici."
       )
       |> maybe_store_return_to()
-      |> redirect(to: ~p"/profiles/new")
+      |> redirect(to: ~p"/profili/novi")
       |> halt()
     end
   end

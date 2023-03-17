@@ -15,9 +15,9 @@ defmodule VejperWeb.UserConfirmationInstructionsLive do
     </.simple_form>
 
     <p>
-      <.link href={~p"/users/register"}>Novi nalog</.link>
+      <.link href={~p"/nalog/novi"}>Novi nalog</.link>
       |
-      <.link href={~p"/users/log_in"}>Prijava</.link>
+      <.link href={~p"/nalog/prijava"}>Prijava</.link>
     </p>
     """
   end
@@ -30,7 +30,7 @@ defmodule VejperWeb.UserConfirmationInstructionsLive do
     if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_user_confirmation_instructions(
         user,
-        &url(~p"/users/confirm/#{&1}")
+        &url(~p"/nalog/potvrda/#{&1}")
       )
     end
 

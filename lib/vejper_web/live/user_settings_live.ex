@@ -33,7 +33,7 @@ defmodule VejperWeb.UserSettingsLive do
     <.simple_form
       for={@password_form}
       id="password_form"
-      action={~p"/users/log_in?_action=password_updated"}
+      action={~p"/nalog/prijava?_action=password_updated"}
       method="post"
       phx-change="validate_password"
       phx-submit="update_password"
@@ -72,7 +72,7 @@ defmodule VejperWeb.UserSettingsLive do
           put_flash(socket, :error, "Link za promenu email adrese nije validan ili je istekao")
       end
 
-    {:ok, push_navigate(socket, to: ~p"/users/settings")}
+    {:ok, push_navigate(socket, to: ~p"/nalog/podesavanja")}
   end
 
   def mount(_params, _session, socket) do
@@ -113,7 +113,7 @@ defmodule VejperWeb.UserSettingsLive do
         Accounts.deliver_user_update_email_instructions(
           applied_user,
           user.email,
-          &url(~p"/users/settings/confirm_email/#{&1}")
+          &url(~p"/nalog/podesavanja/potvrda_adrese/#{&1}")
         )
 
         info = "Link za potvrdu je poslat na vašu novu adresu"

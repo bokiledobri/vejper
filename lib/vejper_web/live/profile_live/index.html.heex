@@ -4,10 +4,10 @@
 
 <div class="flex flex-col items-center md:flex-row md:flex-wrap gap-4" id="profiles">
   <%= for { _, profile} <- @streams.profiles do %>
-    <.link navigate={~p"/profiles/#{profile.id}"}>
-      <div class="flex flex-col gap-1 sm:gap-3 items-center bg-zinc-200 rounded cursor-pointer dark:bg-zinc-800 w-[150px] sm:w-[200px] md:w-[350px]">
+    <.link navigate={~p"/profil/#{profile.id}"}>
+      <div class="flex flex-col gap-3 p-3 items-center bg-zinc-200 rounded cursor-pointer dark:bg-zinc-800 :w-[350px]">
         <img
-          class="w-[100px] h-[100px] sm:w-[150px] sm:h-[150px] md:w-[300px] md:h-[300px] rounded-full"
+          class="w-[300px] h-[300px] rounded-full"
           src={profile.profile_image_url}
           alt={profile.profile_image_url}
         />
@@ -20,7 +20,7 @@
   :if={@live_action in [:new, :edit]}
   id="profile-modal"
   show
-  on_cancel={JS.navigate(~p"/profiles")}
+  on_cancel={JS.navigate(~p"/profili")}
 >
   <.live_component
     module={VejperWeb.ProfileLive.FormComponent}
@@ -28,7 +28,7 @@
     title={@page_title}
     action={@live_action}
     profile={@profile}
-    patch={~p"/profiles"}
+    patch={~p"/profili"}
     current_user={@current_user}
     uploads={@uploads}
     uploaded_files={@uploaded_files}

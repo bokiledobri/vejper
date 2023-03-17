@@ -1,4 +1,4 @@
-<.awesome_floating_button patch={~p"/store_ads/new"} current_user={@current_user} />
+<.awesome_floating_button patch={~p"/oglasi/novi"} current_user={@current_user} />
 <ul class="flex flex-col gap-6 items-center" phx-update="stream" id="ads-list">
   <%= for {dom_id, ad} <- @streams.ads do %>
     <li
@@ -7,7 +7,7 @@
     >
       <div class="w-full flex justify-between">
         <.link
-          navigate={~p"/profiles/#{ad.user.profile.id}"}
+          navigate={~p"/profil/#{ad.user.profile.id}"}
           class="flex flex-row gap-3 items-center ml-2"
         >
           <img src={ad.user.profile.profile_image_url} class="w-10 h-10 rounded-full" />
@@ -24,7 +24,7 @@
       </div>
       <.link
         class="flex flex-col justify-around items-center w-[90%]"
-        navigate={~p"/store_ads/show/#{ad.id}"}
+        navigate={~p"/oglas/#{ad.id}"}
       >
         <h2 class="font-bold text-[1.5rem] text-center"><%= ad.title %></h2>
         <img
@@ -42,7 +42,7 @@
   <% end %>
 </ul>
 
-<.modal :if={@live_action in [:new]} id="ad-modal" show on_cancel={JS.navigate(~p"/store_ads")}>
+<.modal :if={@live_action in [:new]} id="ad-modal" show on_cancel={JS.navigate(~p"/oglasi")}>
   <.live_component
     module={VejperWeb.AdLive.FormComponent}
     id={@ad.id || :new}
@@ -52,6 +52,6 @@
     uploads={@uploads}
     images={@images}
     current_user={@current_user}
-    patch={~p"/store_ads"}
+    patch={~p"/oglasi"}
   />
 </.modal>

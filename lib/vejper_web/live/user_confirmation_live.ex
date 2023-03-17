@@ -16,11 +16,11 @@ defmodule VejperWeb.UserConfirmationLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/users/register"} class="dark:text-zinc-200 dark:hover:text-zinc-300">
+        <.link href={~p"/nalog/novi"} class="dark:text-zinc-200 dark:hover:text-zinc-300">
           Novi nalog
         </.link>
         |
-        <.link href={~p"/users/log_in"} class="dark:text-zinc-200 dark:hover:text-zinc-300">
+        <.link href={~p"/nalog/prijava"} class="dark:text-zinc-200 dark:hover:text-zinc-300">
           Prijava
         </.link>
       </p>
@@ -41,7 +41,7 @@ defmodule VejperWeb.UserConfirmationLive do
         {:noreply,
          socket
          |> put_flash(:info, "Nalog uspešno potvrdjen")
-         |> redirect(to: ~p"/profiles/new")}
+         |> redirect(to: ~p"/profili/novi")}
 
       :error ->
         # If there is a current user and the account was already confirmed,

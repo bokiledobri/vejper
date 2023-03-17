@@ -22,11 +22,11 @@ defmodule VejperWeb.Router do
 
     live_session :mount_current_user,
       on_mount: {VejperWeb.UserAuth, :mount_current_user} do
-      live "/posts", PostLive.Index, :index
-      live "/posts/show/:id", PostLive.Show, :show
+      live "/objave", PostLive.Index, :index
+      live "/objava/:id", PostLive.Show, :show
 
-      live "/store_ads", AdLive.Index, :index
-      live "/store_ads/show/:id", AdLive.Show, :show
+      live "/oglasi", AdLive.Index, :index
+      live "/oglas/:id", AdLive.Show, :show
       get "/", PageController, :home
     end
   end
@@ -60,13 +60,13 @@ defmodule VejperWeb.Router do
 
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{VejperWeb.UserAuth, :redirect_if_user_is_authenticated}] do
-      live "/users/register", UserRegistrationLive, :new
-      live "/users/log_in", UserLoginLive, :new
-      live "/users/reset_password", UserForgotPasswordLive, :new
-      live "/users/reset_password/:token", UserResetPasswordLive, :edit
+      live "/nalog/novi", UserRegistrationLive, :new
+      live "/nalog/prijava", UserLoginLive, :new
+      live "/nalog/nova_lozinka", UserForgotPasswordLive, :new
+      live "/nalog/nova_lozinka/:token", UserResetPasswordLive, :edit
     end
 
-    post "/users/log_in", UserSessionController, :create
+    post "/nalog/prijava", UserSessionController, :create
   end
 
   scope "/", VejperWeb do
@@ -77,9 +77,9 @@ defmodule VejperWeb.Router do
         {VejperWeb.UserAuth, :ensure_authenticated},
         {VejperWeb.UserAuth, :mount_current_user}
       ] do
-      live "/profiles/new", ProfileLive.Index, :new
-      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
-      live "/users/settings", UserSettingsLive, :edit
+      live "/profili/novi", ProfileLive.Index, :new
+      live "/nalog/podesavanja/potvrda_adrese/:token", UserSettingsLive, :confirm_email
+      live "/nalog/podesavanja", UserSettingsLive, :edit
     end
   end
 
@@ -92,32 +92,30 @@ defmodule VejperWeb.Router do
         {VejperWeb.UserAuth, :mount_current_user},
         {VejperWeb.UserAuth, :ensure_profile_completed}
       ] do
-      live "/profiles/edit", ProfileLive.Index, :edit
-
-      live "/profiles/show/edit", ProfileLive.Show, :edit
-      live "/posts/new", PostLive.Index, :new
+      live "/profil/uredi", ProfileLive.Show, :edit
+      live "/objave/nova", PostLive.Index, :new
       #      live "/posts/:id/edit", PostLive.Index, :edit
       #      live "/posts/show/:id/edit", PostLive.Show, :edit
-      live "/chat", ChatLive.Index, :index
-      live "/chat/new", ChatLive.Index, :new
-      live "/chat/:id/edit", ChatLive.Index, :edit
-      live "/chat/:id", ChatLive.Index, :show
-      live "/store_ads/new", AdLive.Index, :new
-      live "/store_ads/show/:id/edit", AdLive.Show, :edit
+      live "/caskanje", ChatLive.Index, :index
+      live "/caskanje/nova_soba", ChatLive.Index, :new
+      live "/caskanje/sobe/:id/uredi", ChatLive.Index, :edit
+      live "/caskanje/:id", ChatLive.Index, :show
+      live "/oglasi/novi", AdLive.Index, :new
+      live "/oglas/:id/uredi", AdLive.Show, :edit
     end
   end
 
   scope "/", VejperWeb do
     pipe_through [:browser]
 
-    delete "/users/log_out", UserSessionController, :delete
+    delete "/nalog/odjava", UserSessionController, :delete
 
     live_session :current_user,
       on_mount: [{VejperWeb.UserAuth, :mount_current_user}] do
-      live "/users/confirm/:token", UserConfirmationLive, :edit
-      live "/users/confirm", UserConfirmationInstructionsLive, :new
-      live "/profiles", ProfileLive.Index, :index
-      live "/profiles/:id", ProfileLive.Show, :show
+      live "/nalog/potvrda/:token", UserConfirmationLive, :edit
+      live "/nalog/potvrda/", UserConfirmationInstructionsLive, :new
+      live "/profili", ProfileLive.Index, :index
+      live "/profil/:id", ProfileLive.Show, :show
     end
   end
 end
