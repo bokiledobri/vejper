@@ -45,7 +45,22 @@ defmodule VejperWeb.AdLive.Show do
   end
 
   @impl true
+  def handle_info({:ad_updated, ad}, socket) do
+    {:noreply, assign(socket, :ad, ad)}
+  end
+
+  @impl true
+  def handle_info({:ad_deleted, _ad}, socket) do
+    socket =
+      put_flash(socket, :info, "Oglas koji ste gledali upravo je obrisan")
+      |> push_navigate(to: ~p"/store_ads")
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_params(%{"id" => id}, _, socket) do
+    if connected?(socket), do: Store.subscribe(id)
     ad = Store.get_ad!(id)
 
     {:noreply,

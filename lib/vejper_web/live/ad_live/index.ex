@@ -39,10 +39,20 @@ defmodule VejperWeb.AdLive.Index do
   end
 
   @impl true
+  def handle_info({:ad_updated, ad}, socket) do
+    {:noreply, stream_insert(socket, :ads, ad)}
+  end
+
+  @impl true
+  def handle_info({:ad_deleted, ad}, socket) do
+    {:noreply, stream_delete(socket, :ads, ad)}
+  end
+
+  @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     ad = Store.get_ad!(id)
-    {:ok, _} = Store.delete_ad(ad)
+    Store.delete_ad(ad)
 
-    {:noreply, stream_delete(socket, :store_ads, ad)}
+    {:noreply, socket}
   end
 end

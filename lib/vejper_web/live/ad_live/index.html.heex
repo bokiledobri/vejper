@@ -1,10 +1,42 @@
 <.awesome_floating_button patch={~p"/store_ads/new"} current_user={@current_user} />
-<ul class="flex flex-col gap-5" phx-update="stream" id="ads-list">
+<ul class="flex flex-col gap-6 items-center" phx-update="stream" id="ads-list">
   <%= for {dom_id, ad} <- @streams.ads do %>
-    <li class="flex flex-col" id={dom_id}>
-      <.link navigate={~p"/store_ads/show/#{ad.id}"}><%= ad.title %></.link>
-      <.link phx-click={JS.push("delete", value: %{id: ad.id})} data-confirm="Are you sure?">
-        <Heroicons.trash class="w-7 h-7" />
+    <li
+      class="flex flex-col items-center w-4/5 p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
+      id={dom_id}
+    >
+      <div class="w-full flex justify-between">
+        <.link
+          navigate={~p"/profiles/#{ad.user.profile.id}"}
+          class="flex flex-row gap-3 items-center ml-2"
+        >
+          <img src={ad.user.profile.profile_image_url} class="w-10 h-10 rounded-full" />
+          <h4 class="text-[1rem] font-bold"><%= ad.user.profile.username %></h4>
+        </.link>
+        <.link
+          :if={@current_user && @current_user.id == ad.user_id}
+          class="m-5"
+          phx-click={JS.push("delete", value: %{id: ad.id})}
+          data-confirm="Da li ste sigurni?"
+        >
+          <Heroicons.trash class="w-7 h-7" />
+        </.link>
+      </div>
+      <.link
+        class="flex flex-col justify-around items-center w-[90%]"
+        navigate={~p"/store_ads/show/#{ad.id}"}
+      >
+        <h2 class="font-bold text-[1.5rem] text-center"><%= ad.title %></h2>
+        <img
+          :if={is_list(ad.images) && Enum.at(ad.images, 0) != nil}
+          src={Enum.at(ad.images, 0).url}
+          alt={ad.title}
+          class="w-full"
+        />
+        <p class={"mt-4 text-zinc-900 dark:text-zinc-100 w-full"<>if is_list(ad.images) && Enum.at(ad.images, 0) !=nil, do:  " truncate text-elipsis", else: ""}>
+          <%= ad.description %>
+        </p>
+        <h4 class="self-end m-5 font-bold"><%= ad.price %> din</h4>
       </.link>
     </li>
   <% end %>

@@ -18,7 +18,11 @@ defmodule Vejper.Store do
 
   """
   def list_store_ads do
-    Repo.all(Ad)
+    from(a in Ad,
+      preload: [user: :profile],
+      preload: :images
+    )
+    |> Repo.all()
   end
 
   @doc """
@@ -73,6 +77,8 @@ defmodule Vejper.Store do
     ad
     |> Ad.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:ad_updated, :all)
+    |> broadcast(:ad_updated)
   end
 
   @doc """
@@ -89,6 +95,8 @@ defmodule Vejper.Store do
   """
   def delete_ad(%Ad{} = ad) do
     Repo.delete(ad)
+    |> broadcast(:ad_deleted, :all)
+    |> broadcast(:ad_deleted)
   end
 
   @doc """
@@ -124,6 +132,16 @@ defmodule Vejper.Store do
   end
 
   defp broadcast({:error, _} = error, _, :all), do: error
+
+  defp broadcast({:ok, %Ad{} = ad} = return, event, :all) do
+    Phoenix.PubSub.broadcast(
+      Vejper.PubSub,
+      "ads",
+      {event, Repo.preload(ad, [:images, [user: :profile]])}
+    )
+
+    return
+  end
 
   defp broadcast({:ok, item} = return, event, :all) do
     Phoenix.PubSub.broadcast(Vejper.PubSub, "ads", {event, item})

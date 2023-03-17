@@ -126,11 +126,18 @@ defmodule VejperWeb.AdLive.FormComponent do
   end
 
   defp save_ad(socket, :edit, ad_params) do
+    old_images =
+      if socket.assigns.images,
+        do: Enum.map(socket.assigns.images, fn img -> %{"id" => img.id, "url" => img.url} end),
+        else: []
+
+    new_images = Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
+
     ad_params =
       Map.put(
         ad_params,
         "images",
-        Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
+        Enum.concat(old_images, new_images)
       )
 
     case Store.update_ad(socket.assigns.ad, ad_params) do

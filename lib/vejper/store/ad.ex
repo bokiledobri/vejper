@@ -10,7 +10,7 @@ defmodule Vejper.Store.Ad do
     field :state, :string
     field :title, :string
     belongs_to :user, Vejper.Accounts.User, on_replace: :nilify
-    has_many :images, Vejper.Store.Image
+    has_many :images, Vejper.Store.Image, on_replace: :delete_if_exists
 
     timestamps()
   end

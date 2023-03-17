@@ -89,6 +89,8 @@ defmodule VejperWeb do
       import VejperWeb.DateTimeComponent
       import VejperWeb.Gettext
 
+      import VejperWeb.HtmlHelpers
+
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
 

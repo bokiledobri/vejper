@@ -37,7 +37,7 @@ defmodule VejperWeb.AwesomeComponents do
       class="fixed bottom-10 right-10"
       patch={@patch}
     >
-      <Heroicons.plus class="rounded-full bg-zinc-200 dark:bg-zinc-800 p-4 h-20 w-20" />
+      <Heroicons.plus class="rounded-full bg-zinc-700 dark:bg-zinc-300 text-white dark:text-black p-4 h-20 w-20" />
     </.link>
     """
   end
