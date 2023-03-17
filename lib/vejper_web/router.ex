@@ -23,8 +23,10 @@ defmodule VejperWeb.Router do
     live_session :mount_current_user,
       on_mount: {VejperWeb.UserAuth, :mount_current_user} do
       live "/posts", PostLive.Index, :index
-
       live "/posts/show/:id", PostLive.Show, :show
+
+      live "/store_ads", AdLive.Index, :index
+      live "/store_ads/show/:id", AdLive.Show, :show
       get "/", PageController, :home
     end
   end
@@ -100,6 +102,8 @@ defmodule VejperWeb.Router do
       live "/chat/new", ChatLive.Index, :new
       live "/chat/:id/edit", ChatLive.Index, :edit
       live "/chat/:id", ChatLive.Index, :show
+      live "/store_ads/new", AdLive.Index, :new
+      live "/store_ads/show/:id/edit", AdLive.Show, :edit
     end
   end
 

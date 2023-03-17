@@ -26,4 +26,19 @@ defmodule VejperWeb.AwesomeComponents do
     <% end %>
     """
   end
+
+  attr :patch, :string, required: true
+  attr :current_user, :any, required: true
+
+  def awesome_floating_button(assigns) do
+    ~H"""
+    <.link
+      :if={@current_user && @current_user.profile}
+      class="fixed bottom-10 right-10"
+      patch={@patch}
+    >
+      <Heroicons.plus class="rounded-full bg-zinc-200 dark:bg-zinc-800 p-4 h-20 w-20" />
+    </.link>
+    """
+  end
 end

@@ -1,0 +1,82 @@
+<div class="flex flex-col items-stretch gap-3">
+  <div class="flex justify-between">
+    <.back navigate={~p"/store_ads"}>Nazad</.back>
+    <.link
+      :if={@current_user && @current_user.id == @ad.user_id}
+      patch={~p"/store_ads/show/#{@ad}/edit"}
+      phx-click={JS.push_focus()}
+    >
+      <Heroicons.pencil_square class="w-8 h-8" />
+    </.link>
+  </div>
+  <div class="mb-3 self-center">
+    <h2 class="text-[1.5rem] font-bold text-center"><%= @ad.title %></h2>
+    <%= if @active_image do %>
+      <div class="relative w-[80vw] h-[60vh] flex flex-col items-center">
+        <img
+          class="h-full object-contain object-center "
+          src={@active_image.url}
+          alt={@active_image.url}
+        />
+        <button
+          class="pl-3 absolute top-0 left-0 h-full bg-white dark:bg-black opacity-30"
+          phx-click="image-prev"
+          type="button"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="h-6 w-6"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
+        <button
+          class="pr-3 absolute top-0 right-0 h-full bg-white dark:bg-black opacity-30"
+          type="button"
+          phx-click="image-next"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="h-6 w-6"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+    <% end %>
+
+    <p><%= @ad.description %></p>
+  </div>
+  <.list>
+    <:item title="Grad"><%= @ad.city %></:item>
+    <:item title="Cena"><%= @ad.price %></:item>
+    <:item title="Stanje"><%= @ad.state %></:item>
+  </.list>
+</div>
+
+<.modal
+  :if={@live_action == :edit}
+  id="ad-modal"
+  show
+  on_cancel={JS.patch(~p"/store_ads/show/#{@ad}")}
+>
+  <.live_component
+    module={VejperWeb.AdLive.FormComponent}
+    id={@ad.id}
+    title={@page_title}
+    action={@live_action}
+    ad={@ad}
+    uploads={@uploads}
+    images={@images}
+    current_user={@current_user}
+    patch={~p"/store_ads/show/#{@ad}"}
+  />
+</.modal>

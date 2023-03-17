@@ -1,11 +1,7 @@
 <header class="flex justify-between">
   <h2 class="text-[1.725rem] font-bold ">Objave</h2>
-  <%= if @current_user do %>
-    <.link :if={@current_user.profile} patch={~p"/posts/new"}>
-      <.button>Nova Objava</.button>
-    </.link>
-  <% end %>
 </header>
+<.awesome_floating_button patch={~p"/posts/new"} current_user={@current_user} />
 <div
   id="infinite-scroll"
   phx-update="stream"

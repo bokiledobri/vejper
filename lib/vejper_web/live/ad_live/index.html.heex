@@ -1,0 +1,25 @@
+<.awesome_floating_button patch={~p"/store_ads/new"} current_user={@current_user} />
+<ul class="flex flex-col gap-5" phx-update="stream" id="ads-list">
+  <%= for {dom_id, ad} <- @streams.ads do %>
+    <li class="flex flex-col" id={dom_id}>
+      <.link navigate={~p"/store_ads/show/#{ad.id}"}><%= ad.title %></.link>
+      <.link phx-click={JS.push("delete", value: %{id: ad.id})} data-confirm="Are you sure?">
+        <Heroicons.trash class="w-7 h-7" />
+      </.link>
+    </li>
+  <% end %>
+</ul>
+
+<.modal :if={@live_action in [:new]} id="ad-modal" show on_cancel={JS.navigate(~p"/store_ads")}>
+  <.live_component
+    module={VejperWeb.AdLive.FormComponent}
+    id={@ad.id || :new}
+    title={@page_title}
+    action={@live_action}
+    ad={@ad}
+    uploads={@uploads}
+    images={@images}
+    current_user={@current_user}
+    patch={~p"/store_ads"}
+  />
+</.modal>

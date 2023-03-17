@@ -11,6 +11,7 @@ defmodule Vejper.Accounts.User do
     has_one :profile, Vejper.Accounts.Profile, on_replace: :delete
     has_one :chat_room, Vejper.Chat.Room, on_replace: :mark_as_invalid
     has_many :posts, Vejper.Social.Post, on_replace: :nilify
+    has_many :ads, Vejper.Store.Ad, on_replace: :nilify
     many_to_many :chat_rooms, Vejper.Chat.Room, join_through: "users_chat_rooms"
 
     timestamps()

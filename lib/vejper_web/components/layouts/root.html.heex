@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title suffix="Vejper">
+    <.live_title suffix=" | Vejper">
       <%= assigns[:page_title] || "Početna" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
@@ -100,7 +100,7 @@
               </ul>
               <div class="py-1">
                 <.link
-                  navigate={~p"/users/log_out"}
+                  href={~p"/users/log_out"}
                   method="delete"
                   class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:text-zinc-200 dark:hover:text-white"
                 >
