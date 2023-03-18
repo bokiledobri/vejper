@@ -6,6 +6,7 @@ defmodule Vejper.Store.Field do
     field :name, :string
     field :type, :string
     field :values, {:array, :string}
+    many_to_many :categories, Vejper.Store.Category, join_through: "store_categories_fields"
 
     timestamps()
   end

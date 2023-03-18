@@ -1,6 +1,7 @@
 defmodule VejperWeb.AdLive.FormComponent do
   use VejperWeb, :live_component
 
+  alias Vejper.Store.Category
   alias Vejper.Store
 
   @impl true
@@ -14,6 +15,21 @@ defmodule VejperWeb.AdLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
+        <.input
+          field={@form[:category_id]}
+          type="select"
+          phx-change="validate"
+          options={@categories}
+          label="Kategorija"
+        />
+        <.inputs_for :let={field} field={@form[:fields]}>
+          <.input
+            field={field[:value]}
+            type={field.params["type"]}
+            options={field.params["values"]}
+            label={field.params["name"]}
+          />
+        </.inputs_for>
         <.input field={@form[:title]} type="text" label="Naslov" />
         <.input field={@form[:description]} type="textarea" label="Opis" />
         <.input field={@form[:price]} type="number" label="Cena" />
@@ -89,14 +105,33 @@ defmodule VejperWeb.AdLive.FormComponent do
 
   @impl true
   def update(%{ad: ad} = assigns, socket) do
-    city = if ad.city == nil, do: assigns.current_user.profile.city, else: ad.city
-    ad = Map.put(ad, :city, city)
-    changeset = Store.change_ad(ad)
+    categories = Store.list_categories()
 
-    {:ok,
-     socket
-     |> assign(assigns)
-     |> assign_form(changeset)}
+    category =
+      with %Category{} <- ad.category do
+        ad.category
+      else
+        _ ->
+          Enum.at(categories, 0)
+      end
+
+    fields = category.fields
+    categories = categories |> Enum.map(fn c -> {c.name, c.id} end)
+    city = if ad.city == nil, do: assigns.current_user.profile.city, else: ad.city
+
+    ad = Map.put(ad, :city, city)
+    changeset = Store.change_ad(ad, category)
+
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign(:categories, categories)
+      |> assign(:fields, fields)
+      |> assign_form(changeset)
+
+    IO.inspect(socket.assigns.form)
+
+    {:ok, socket}
   end
 
   @impl true
@@ -113,19 +148,30 @@ defmodule VejperWeb.AdLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"ad" => ad_params}, socket) do
+    category = Store.get_category!(ad_params["category_id"])
+
+    category =
+      if category == nil do
+        Enum.at(socket.assigns.categories, 0)
+      else
+        category
+      end
+
     changeset =
       socket.assigns.ad
-      |> Store.change_ad(ad_params)
+      |> Store.change_ad(ad_params, category)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign_form(socket, changeset)}
+    socket = assign_form(socket, changeset)
+    {:noreply, socket}
   end
 
   def handle_event("save", %{"ad" => ad_params}, socket) do
-    save_ad(socket, socket.assigns.action, ad_params)
+    category = Store.get_category!(ad_params["category_id"])
+    save_ad(socket, socket.assigns.action, ad_params, category)
   end
 
-  defp save_ad(socket, :edit, ad_params) do
+  defp save_ad(socket, :edit, ad_params, category) do
     old_images =
       if socket.assigns.images,
         do: Enum.map(socket.assigns.images, fn img -> %{"id" => img.id, "url" => img.url} end),
@@ -140,7 +186,7 @@ defmodule VejperWeb.AdLive.FormComponent do
         Enum.concat(old_images, new_images)
       )
 
-    case Store.update_ad(socket.assigns.ad, ad_params) do
+    case Store.update_ad(socket.assigns.ad, ad_params, category) do
       {:ok, _ad} ->
         {:noreply,
          socket
@@ -152,7 +198,7 @@ defmodule VejperWeb.AdLive.FormComponent do
     end
   end
 
-  defp save_ad(socket, :new, ad_params) do
+  defp save_ad(socket, :new, ad_params, category) do
     ad_params =
       Map.put(
         ad_params,
@@ -160,7 +206,7 @@ defmodule VejperWeb.AdLive.FormComponent do
         Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
       )
 
-    case Store.create_ad(socket.assigns.current_user.id, ad_params) do
+    case Store.create_ad(socket.assigns.current_user.id, ad_params, category) do
       {:ok, _ad} ->
         {:noreply,
          socket
@@ -194,6 +240,7 @@ defmodule VejperWeb.AdLive.FormComponent do
   defp error_to_string(:not_accepted), do: "molimo odaberite .png, .jpg ili jpeg format slika"
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
-    assign(socket, :form, to_form(changeset))
+    form = to_form(changeset)
+    assign(socket, :form, form)
   end
 end

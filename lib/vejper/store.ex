@@ -4,6 +4,7 @@ defmodule Vejper.Store do
   """
 
   import Ecto.Query, warn: false
+  alias Vejper.Store.Category
   alias Vejper.Repo
 
   alias Vejper.Store.Ad
@@ -20,7 +21,8 @@ defmodule Vejper.Store do
   def list_store_ads do
     from(a in Ad,
       preload: [user: :profile],
-      preload: :images
+      preload: :images,
+      preload: [category: :fields]
     )
     |> Repo.all()
   end
@@ -39,7 +41,8 @@ defmodule Vejper.Store do
       ** (Ecto.NoResultsError)
 
   """
-  def get_ad!(id), do: Repo.get!(Ad, id) |> Repo.preload([:images, [user: :profile]])
+  def get_ad!(id),
+    do: Repo.get!(Ad, id) |> Repo.preload([:images, [user: :profile], [category: :fields]])
 
   @doc """
   Creates a ad.
@@ -53,10 +56,10 @@ defmodule Vejper.Store do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_ad(user_id, attrs \\ %{}) do
+  def create_ad(user_id, attrs \\ %{}, %Category{} = category) do
     Vejper.Accounts.get_user!(user_id)
     |> Ecto.build_assoc(:ads)
-    |> Ad.changeset(attrs)
+    |> Ad.changeset(attrs, category)
     |> Repo.insert()
     |> broadcast(:ad_created, :all)
   end
@@ -73,9 +76,9 @@ defmodule Vejper.Store do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_ad(%Ad{} = ad, attrs) do
+  def update_ad(%Ad{} = ad, attrs, %Category{} = category) do
     ad
-    |> Ad.changeset(attrs)
+    |> Ad.changeset(attrs, category)
     |> Repo.update()
     |> broadcast(:ad_updated, :all)
     |> broadcast(:ad_updated)
@@ -108,8 +111,16 @@ defmodule Vejper.Store do
       %Ecto.Changeset{data: %Ad{}}
 
   """
-  def change_ad(%Ad{} = ad, attrs \\ %{}) do
-    Ad.changeset(ad, attrs)
+  def change_ad(%Ad{} = ad, attrs \\ %{}, category) do
+    Ad.changeset(ad, attrs, category)
+  end
+
+  def list_categories() do
+    Repo.all(Category) |> Repo.preload(:fields)
+  end
+
+  def get_category!(id) do
+    Repo.get!(Category, id) |> Repo.preload(:fields)
   end
 
   def subscribe(id) when is_integer(id) do
