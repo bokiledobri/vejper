@@ -3,7 +3,6 @@ infiniteScroll = (scrollAt, el) => {
     return {
         page() { return this.el.dataset.page },
         mounted() {
-            console.log("MOUNTED")
             el().addEventListener("scroll", _ => {
                 if (this.pending == this.page() && (scrollAt() > 90 || scrollAt() < -90)) {
                     this.pending = this.page() + 1

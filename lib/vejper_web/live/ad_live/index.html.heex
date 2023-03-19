@@ -1,11 +1,88 @@
 <.awesome_floating_button patch={~p"/oglasi/novi"} current_user={@current_user} />
-<ul class="flex flex-col gap-6 items-center" phx-update="stream" id="ads-list">
+<div
+  class="fixed bg-zinc-200 dark:bg-zinc-800 p-3 rounded-full top-20 z-10 left-5 cursor-pointer z-10"
+  phx-click={JS.show(to: "#oglas-query-form", display: "block")}
+>
+  <Heroicons.magnifying_glass class=" h-10 w-10" />
+</div>
+<.simple_form
+  for={@query_form}
+  class="hidden fixed top-10 w-4/5 left-[10%] p-5 rounded"
+  id="oglas-query-form"
+  phx-hook="QueryAds"
+>
+  <div class="flex items-center flex-col justify-around w-full">
+    <Heroicons.x_mark
+      class="w-10 h-10 self-end m-5 cursor-pointer"
+      phx-click={JS.hide(to: "#oglas-query-form")}
+    />
+    <div class="p-5 grid md:grid-cols-2 basis-full w-full gap-4">
+      <div class="col-span-2">
+        <.input label="Pretraga" field={@query_form[:term]} />
+      </div>
+      <.input
+        label="Kategorija"
+        field={@query_form[:category_id]}
+        type="select"
+        options={[{"Sve", "0"} | @query_categories]}
+      />
+      <.input field={@query_form[:city]} label="Grad" type="select" options={["Svi" | @cities]} />
+      <.input
+        field={@query_form[:state]}
+        label="Stanje"
+        type="select"
+        options={["Sva" | @states]}
+      />
+      <div class="flex flex-col">
+        <div class="font-bold text-start">Cena:</div>
+        <div class="flex justify-between items-end text-[0.7rem]">
+          <label><%= @prices.min %></label>
+          <label class="font-bold self-start text-[1rem]">
+            Od: <%= @query_form[:min_price].value %>
+          </label>
+          <label><%= @query_form[:max_price].value %></label>
+        </div>
+        <.input
+          type="range"
+          phx-change="range-changed"
+          label={"Od: #{@query_form[:min_price].value}"}
+          min={@prices.min}
+          max={@query_form[:max_price].value}
+          field={@query_form[:min_price]}
+        />
+        <div class="flex justify-between items-end text-[0.7rem]">
+          <label><%= @query_form[:min_price].value %></label>
+          <label class="font-bold self-start text-[1rem]">
+            Do: <%= @query_form[:max_price].value %>
+          </label>
+          <label><%= @prices.max %></label>
+        </div>
+        <.input
+          type="range"
+          phx-change="range-changed"
+          min={@query_form[:min_price].value}
+          max={@prices.max}
+          field={@query_form[:max_price]}
+        />
+      </div>
+    </div>
+    <.button class="mb-3 w-1/2" phx-click={JS.hide(to: "#oglas-query-form")}>
+      Potvrdi
+    </.button>
+  </div>
+</.simple_form>
+<ul
+  class="flex flex-col gap-6 justify-center items-center md:flex-row md:flex-wrap"
+  phx-update="stream"
+  phx-hook="InfiniteScroll"
+  id="ads-list"
+>
   <%= for {dom_id, ad} <- @streams.ads do %>
     <li
-      class="flex flex-col items-center w-4/5 p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
+      class="flex flex-col items-center w-4/5 md:w-[30rem] p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
       id={dom_id}
     >
-      <div class="w-full flex justify-between">
+      <div class="w-full flex justify-between items-center">
         <.link
           navigate={~p"/profil/#{ad.user.profile.id}"}
           class="flex flex-row gap-3 items-center ml-2"
@@ -15,7 +92,7 @@
         </.link>
         <.link
           :if={@current_user && @current_user.id == ad.user_id}
-          class="m-5"
+          class="mx-5"
           phx-click={JS.push("delete", value: %{id: ad.id})}
           data-confirm="Da li ste sigurni?"
         >
@@ -33,11 +110,20 @@
           alt={ad.title}
           class="w-full"
         />
-        <p class={"mt-4 text-zinc-900 dark:text-zinc-100 w-full"<>if is_list(ad.images) && Enum.at(ad.images, 0) !=nil, do:  " truncate text-elipsis", else: ""}>
-          <%= ad.description %>
-        </p>
-        <h4 class="self-end m-5 font-bold"><%= ad.price %> din</h4>
       </.link>
+
+      <div class="grid grid-cols-3 basis-full my-5 w-full items-center">
+        <div class="font-bold text-[1.6rem]"><%= ad.price %>RSD</div>
+        <div class="font-bold text-[1.1rem] juctify-self-center text-center">
+          <%= ad.city %>
+        </div>
+        <div class={"font-bold justify-self-end truncate text-elipsis w-[10rem] text-end" <> case ad.state, do: ("Novo" -> " text-[#00ff00]"; "Neupotrebljivo" -> " text-[#ff0000]"; _-> "")}>
+          <%= ad.state %>
+        </div>
+      </div>
+      <p class={"mt-4 text-center text-zinc-900 dark:text-zinc-100 w-full"<>if is_list(ad.images) && Enum.at(ad.images, 0) !=nil, do:  " truncate text-elipsis", else: ""}>
+        <%= ad.description %>
+      </p>
     </li>
   <% end %>
 </ul>
@@ -51,6 +137,7 @@
     ad={@ad}
     uploads={@uploads}
     images={@images}
+    html
     current_user={@current_user}
     patch={~p"/oglasi"}
   />

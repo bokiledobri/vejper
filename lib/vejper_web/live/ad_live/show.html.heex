@@ -17,63 +17,58 @@
     <h4 class="text-[1rem] font-bold"><%= @ad.user.profile.username %></h4>
   </.link>
   <h2 class="text-[1.5rem] font-bold text-center"><%= @ad.title %></h2>
-  <div class="mb-3 self-center flex flex-col-reverse md:grid md:grid-cols-5">
-    <.list>
-      <:item title="Grad"><%= @ad.city %></:item>
-      <:item title="Cena"><%= @ad.price %></:item>
-      <:item title="Stanje"><%= @ad.state %></:item>
-      <:item :for={field <- @ad.fields} title={field.name}><%= field.value %></:item>
-    </.list>
-    <div class="md:col-span-4">
-      <%= if @active_image do %>
-        <div class="relative w-[80vw] h-[60vh] flex flex-col items-center">
-          <img
-            class="h-full object-contain object-center "
-            src={@active_image.url}
-            alt={@active_image.url}
-          />
-          <button
-            class="pl-3 absolute top-0 left-0 h-full bg-white dark:bg-black opacity-30"
-            phx-click="image-prev"
-            type="button"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="h-6 w-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-          <button
-            class="pr-3 absolute top-0 right-0 h-full bg-white dark:bg-black opacity-30"
-            type="button"
-            phx-click="image-next"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="h-6 w-6"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
-        </div>
-      <% end %>
-
-      <p class="text-center"><%= @ad.description %></p>
+  <%= if @active_image do %>
+    <div class="relative w-[80vw] h-[60vh] flex flex-col items-center self-center">
+      <img
+        class="h-full object-contain object-center "
+        src={@active_image.url}
+        alt={@active_image.url}
+      />
+      <button
+        class="pl-3 absolute top-0 left-0 h-full bg-white dark:bg-black opacity-30"
+        phx-click="image-prev"
+        type="button"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-6 w-6"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+      <button
+        class="pr-3 absolute top-0 right-0 h-full bg-white dark:bg-black opacity-30"
+        type="button"
+        phx-click="image-next"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-6 w-6"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+    </div>
+  <% end %>
+  <div class="flex justify-around items-center">
+    <div class="font-bold text-[2rem]"><%= @ad.price %>RSD</div>
+    <div class="font-bold text-[1.5rem]"><%= @ad.city %></div>
+    <div class={"font-bold text-[1.8rem]" <> case @ad.state, do: ("Novo" -> " text-[#00ff00]"; "Neupotrebljivo" -> " text-[#ff0000]"; _-> "")}>
+      <%= @ad.state %>
     </div>
   </div>
+  <p class="rounded bg-zinc-50 dark:bg-zinc-900 p-3 text-center"><%= @ad.description %></p>
+  <.list>
+    <:item :for={field <- @ad.fields} title={field.name}><%= field.value %></:item>
+  </.list>
 </div>
 
 <.modal :if={@live_action == :edit} id="ad-modal" show on_cancel={JS.patch(~p"/oglas/#{@ad}")}>

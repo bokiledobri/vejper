@@ -70,7 +70,7 @@ defmodule VejperWeb.ChatLive.Index do
   def handle_event("delete-message", %{"message" => message_id}, socket) do
     message = Chat.get_message!(message_id)
 
-    if message.user_id == socket.assigns.current_user.id do
+    if check_owner(message, socket) do
       Chat.delete_message(message)
     end
 

@@ -73,7 +73,7 @@ defmodule VejperWeb.PostLive.Index do
   def handle_event("delete", %{"id" => id}, socket) do
     post = Social.get_post!(id)
 
-    if socket.assigns.current_user.id == post.user.id do
+    if check_owner(post, socket) do
       {:ok, _} = Social.delete_post(post)
 
       {:noreply, socket}

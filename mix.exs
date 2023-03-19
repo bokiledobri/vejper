@@ -53,7 +53,9 @@ defmodule Vejper.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:hackney, "~> 1.18"},
-      {:tzdata, "~> 1.1"}
+      {:tzdata, "~> 1.1"},
+      {:faker, "~> 0.17", only: [:dev, :test]},
+      {:paginator, "~> 1.2.0"}
     ]
   end
 

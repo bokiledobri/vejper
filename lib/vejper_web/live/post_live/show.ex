@@ -24,7 +24,12 @@ defmodule VejperWeb.PostLive.Show do
   end
 
   def handle_event("delete", %{"comment" => comment_id}, socket) do
-    Social.delete_comment(comment_id)
+    comment = Social.get_comment!(comment_id)
+
+    if check_owner(comment, socket) do
+      Social.delete_comment(comment)
+    end
+
     {:noreply, socket}
   end
 
@@ -44,7 +49,7 @@ defmodule VejperWeb.PostLive.Show do
   def handle_event("delete_post", %{"id" => id}, socket) do
     post = Social.get_post!(id)
 
-    if socket.assigns.current_user.id == post.user.id do
+    if check_owner(post, socket) do
       {:ok, _} = Social.delete_post(post)
 
       {:noreply, socket}

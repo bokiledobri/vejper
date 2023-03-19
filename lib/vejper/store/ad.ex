@@ -37,8 +37,6 @@ defmodule Vejper.Store.Ad do
 
   @doc false
   def changeset(ad, attrs, %Vejper.Store.Category{} = category) do
-    IO.inspect(attrs)
-
     attrs =
       cond do
         attrs["fields"] ->

@@ -129,8 +129,6 @@ defmodule VejperWeb.AdLive.FormComponent do
       |> assign(:fields, fields)
       |> assign_form(changeset)
 
-    IO.inspect(socket.assigns.form)
-
     {:ok, socket}
   end
 
@@ -172,29 +170,33 @@ defmodule VejperWeb.AdLive.FormComponent do
   end
 
   defp save_ad(socket, :edit, ad_params, category) do
-    old_images =
-      if socket.assigns.images,
-        do: Enum.map(socket.assigns.images, fn img -> %{"id" => img.id, "url" => img.url} end),
-        else: []
+    if check_owner(socket.assigns.ad, socket) do
+      old_images =
+        if socket.assigns.images,
+          do: Enum.map(socket.assigns.images, fn img -> %{"id" => img.id, "url" => img.url} end),
+          else: []
 
-    new_images = Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
+      new_images = Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
 
-    ad_params =
-      Map.put(
-        ad_params,
-        "images",
-        Enum.concat(old_images, new_images)
-      )
+      ad_params =
+        Map.put(
+          ad_params,
+          "images",
+          Enum.concat(old_images, new_images)
+        )
 
-    case Store.update_ad(socket.assigns.ad, ad_params, category) do
-      {:ok, _ad} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Oglas uspešno izmenjen")
-         |> push_patch(to: socket.assigns.patch)}
+      case Store.update_ad(socket.assigns.ad, ad_params, category) do
+        {:ok, _ad} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Oglas uspešno izmenjen")
+           |> push_patch(to: socket.assigns.patch)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign_form(socket, changeset)}
+        {:error, %Ecto.Changeset{} = changeset} ->
+          {:noreply, assign_form(socket, changeset)}
+      end
+    else
+      {:noreply, socket}
     end
   end
 

@@ -187,8 +187,12 @@ defmodule Vejper.Social do
     |> broadcast(:comment_added)
   end
 
-  def delete_comment(comment_id) do
-    Repo.get!(Comment, comment_id)
+  def get_comment!(id) do
+    Repo.get!(Comment, id)
+  end
+
+  def delete_comment(comment) do
+    comment
     |> Repo.delete()
     |> broadcast(:comment_removed)
   end

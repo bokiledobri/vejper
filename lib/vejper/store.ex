@@ -4,27 +4,104 @@ defmodule Vejper.Store do
   """
 
   import Ecto.Query, warn: false
+  alias Vejper.Store.Query
   alias Vejper.Store.Category
   alias Vejper.Repo
 
   alias Vejper.Store.Ad
 
-  @doc """
-  Returns the list of store_ads.
-
-  ## Examples
-
-      iex> list_store_ads()
-      [%Ad{}, ...]
-
-  """
-  def list_store_ads do
+  defp store_ads_query() do
     from(a in Ad,
       preload: [user: :profile],
       preload: :images,
       preload: [category: :fields]
     )
-    |> Repo.all()
+  end
+
+  def change_query(%Query{} = query, params \\ %{}) do
+    Query.changeset(query, params)
+  end
+
+  def get_query_metadata() do
+    prices =
+      from(a in "store_ads", select: %{min: min(a.price), max: max(a.price)})
+      |> Repo.one()
+
+    categories =
+      from(c in "store_categories", select: {c.name, c.id})
+      |> Repo.all()
+
+    cities =
+      from(a in "store_ads", select: a.city, distinct: a.city)
+      |> Repo.all()
+
+    states =
+      from(a in "store_ads", select: a.state, distinct: a.state)
+      |> Repo.all()
+
+    {prices, categories, cities, states}
+  end
+
+  def list_ads(meta, %{
+        "min_price" => min,
+        "max_price" => max,
+        "term" => term,
+        "category_id" => category_id,
+        "city" => city,
+        "state" => state
+      }) do
+    store_query = store_ads_query()
+
+    query =
+      from(a in store_query,
+        where: a.price >= ^min,
+        where: a.price <= ^max,
+        order_by: [desc: :inserted_at, desc: :id]
+      )
+
+    query =
+      if term != "" do
+        term = "%#{term}%"
+        from(a in query, where: ilike(a.title, ^term))
+      else
+        query
+      end
+
+    query =
+      if category_id != "0" do
+        from(a in query, where: a.category_id == ^category_id)
+      else
+        query
+      end
+
+    query =
+      if city != "Svi" do
+        from(a in query, where: a.city == ^city)
+      else
+        query
+      end
+
+    query =
+      if state != "Sva" do
+        from(a in query, where: a.state == ^state)
+      else
+        query
+      end
+
+    Repo.paginate(query,
+      after: meta,
+      cursor_fields: [{:inserted_at, :desc}, {:id, :desc}],
+      limit: 6
+    )
+  end
+
+  def list_ads(meta, _params) do
+    store_query = store_ads_query()
+
+    from(a in store_query,
+      order_by: [desc: :inserted_at, desc: :id]
+    )
+    |> Repo.paginate(after: meta, cursor_fields: [{:inserted_at, :desc}, {:id, :desc}], limit: 6)
   end
 
   @doc """

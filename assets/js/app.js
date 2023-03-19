@@ -22,6 +22,7 @@ import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import infiniteScroll from "./infiniteScroll"
+import queryAds from "./queryAds"
 let documentScroll = () => {
     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
     let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
@@ -30,8 +31,8 @@ let documentScroll = () => {
     return scrollTop / (scrollHeight - clientHeight) * 100
 }
 
-messagesEl = () => document.querySelector("#chat-messages")
-commentsEl = () => document.querySelector("#post-comments")
+const messagesEl = () => document.querySelector("#chat-messages")
+const commentsEl = () => document.querySelector("#post-comments")
 let elementScroll = (el) => {
     return () => {
         item = el()
@@ -45,7 +46,10 @@ let elementScroll = (el) => {
 commentsInfiniteScroll = infiniteScroll(elementScroll(commentsEl), commentsEl)
 messagesInfiniteScroll = infiniteScroll(elementScroll(messagesEl), messagesEl)
 let Hooks = {
-    InfiniteScroll: infiniteScroll(documentScroll, () => window), CommentsInfiniteScroll: commentsInfiniteScroll, MessagesInfiniteScroll: messagesInfiniteScroll
+    InfiniteScroll: infiniteScroll(documentScroll, () => window),
+    CommentsInfiniteScroll: commentsInfiniteScroll,
+    MessagesInfiniteScroll: messagesInfiniteScroll,
+    QueryAds: queryAds()
 }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
@@ -64,6 +68,11 @@ window.addEventListener("phx:clear-input", (e) => {
     if (el) {
         el.value = ""
     }
+    Socket.dispatch("ads")
+})
+window.addEventListener("clear-ads", (_e) => {
+    let el = document.getElementById("ads-list")
+    el.innerHTML = ''
 })
 // connect if there are any LiveViews on the page
 liveSocket.connect()
