@@ -42,7 +42,7 @@ defmodule Vejper.Chat do
       where: r.id == ^id,
       group_by: r.id
     )
-    |> Repo.one()
+    |> Repo.one!()
   end
 
   @doc """

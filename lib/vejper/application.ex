@@ -17,7 +17,8 @@ defmodule Vejper.Application do
       # Start Finch
       {Finch, name: Vejper.Finch},
       # Start the Endpoint (http/https)
-      VejperWeb.Endpoint
+      VejperWeb.Endpoint,
+      VejperWeb.Presence
       # Start a worker by calling: Vejper.Worker.start_link(arg)
       # {Vejper.Worker, arg}
     ]

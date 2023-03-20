@@ -16,13 +16,16 @@
         </.link>
       </li>
       <li
-        :for={{dom_id, room} <- @streams.rooms}
-        id={dom_id}
+        :for={room <- @rooms}
+        id={"room-#{room.id}"}
         class={"flex cursor-pointer w-full px-5 items-center m-2 " <> if @room  && @room.id == room.id, do: "bg-zinc-800 dark: bg-zinc-200 rounded", else: ""}
       >
         <.link navigate={~p"/caskanje/#{room.id}"} class="basis-full font-bold py-3">
           <%= room.name %>
         </.link>
+        <div class="flex items-center text-sm">
+          <span><%= room.online_users %></span><span class="text-[0.6rem] italic"> onlajn</span>
+        </div>
         <.link
           :if={@current_user.chat_room == room}
           class="ml-3 mr-1"

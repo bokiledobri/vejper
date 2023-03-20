@@ -1,6 +1,6 @@
 defmodule VejperWeb.ChatLive.Index do
   use VejperWeb, :live_view
-
+  alias VejperWeb.Presence
   alias Vejper.Chat
   alias Vejper.Chat.{Message, Room}
 
@@ -12,7 +12,8 @@ defmodule VejperWeb.ChatLive.Index do
     socket =
       assign(socket, :current_user, Vejper.Repo.preload(socket.assigns.current_user, :chat_room))
       |> assign(:room, nil)
-      |> stream(:rooms, rooms, dom_id: &"room-#{&1.id}")
+      |> assign(:online_users, [])
+      |> assign(:rooms, rooms)
 
     {:ok, socket}
   end
@@ -21,6 +22,13 @@ defmodule VejperWeb.ChatLive.Index do
   def handle_params(%{"id" => id} = params, _url, socket) do
     if connected?(socket) do
       Chat.subscribe(id)
+
+      {:ok, _} =
+        Presence.track(self(), "rooms", id, %{
+          id: socket.assigns.current_user.id,
+          online_at: inspect(System.system_time(:second))
+        })
+
       Chat.subscribe()
     end
 
@@ -94,12 +102,22 @@ defmodule VejperWeb.ChatLive.Index do
 
   @impl true
   def handle_info({:room_created, room}, socket) do
-    {:noreply, stream_insert(socket, :rooms, room)}
+    rooms = [socket.assigns.rooms | room]
+    {:noreply, assign(socket, :rooms, rooms)}
   end
 
   @impl true
   def handle_info({:room_updated, room}, socket) do
-    {:noreply, stream_insert(socket, :rooms, room)}
+    rooms =
+      Enum.map(socket.assigns.rooms, fn r ->
+        if r.id == room.id do
+          room
+        else
+          r
+        end
+      end)
+
+    {:noreply, assign(socket, :rooms, rooms)}
   end
 
   @impl true
@@ -110,6 +128,24 @@ defmodule VejperWeb.ChatLive.Index do
   @impl true
   def handle_info({:message_deleted, message}, socket) do
     {:noreply, stream_insert(socket, :messages, message)}
+  end
+
+  @impl true
+  def handle_info(%{event: "presence_diff", payload: payload}, socket) do
+    IO.inspect(payload)
+
+    rooms =
+      socket.assigns.rooms
+      |> Enum.map(fn room ->
+        {_id, entry} =
+          Enum.find(Presence.list("rooms"), {:ok, %{metas: []}}, fn {id, _data} ->
+            String.to_integer(id) == room.id
+          end)
+
+        Map.put(room, :online_users, Enum.count(entry[:metas]))
+      end)
+
+    {:noreply, assign(socket, :rooms, rooms)}
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do

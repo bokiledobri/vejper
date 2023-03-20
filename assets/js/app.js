@@ -68,7 +68,6 @@ window.addEventListener("phx:clear-input", (e) => {
     if (el) {
         el.value = ""
     }
-    Socket.dispatch("ads")
 })
 window.addEventListener("clear-ads", (_e) => {
     let el = document.getElementById("ads-list")

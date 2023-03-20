@@ -73,7 +73,7 @@ defmodule Vejper.Social do
       preload: :users,
       select_merge: %{reactions: count(u.id)}
     )
-    |> Repo.one()
+    |> Repo.one!()
   end
 
   def create_post(%Vejper.Accounts.User{} = user, attrs \\ %{}) do

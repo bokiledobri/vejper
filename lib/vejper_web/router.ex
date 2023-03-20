@@ -105,6 +105,19 @@ defmodule VejperWeb.Router do
     end
   end
 
+  scope "/admin", VejperWeb do
+    pipe_through [:browser, :require_authenticated_user, :require_admin]
+
+    live_session :require_user_admin,
+      on_mount: [
+        {VejperWeb.UserAuth, :ensure_authenticated},
+        {VejperWeb.UserAuth, :mount_current_user},
+        {VejperWeb.UserAuth, :ensure_admin}
+      ] do
+      live "/", AdminLive.Index, :index
+    end
+  end
+
   scope "/", VejperWeb do
     pipe_through [:browser]
 

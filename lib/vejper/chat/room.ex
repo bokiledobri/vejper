@@ -4,6 +4,7 @@ defmodule Vejper.Chat.Room do
 
   schema "chat_rooms" do
     field :name, :string
+    field :online_users, :integer, virtual: true, default: 0
     belongs_to :user, Vejper.Accounts.User, on_replace: :mark_as_invalid
 
     many_to_many :users, Vejper.Accounts.User, join_through: "users_chat_rooms"
