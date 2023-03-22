@@ -1,20 +1,41 @@
 <.awesome_floating_button patch={~p"/oglasi/novi"} current_user={@current_user} />
 <div
   class="fixed bg-zinc-200 dark:bg-zinc-800 p-3 rounded-full top-20 z-10 left-5 cursor-pointer z-10"
-  phx-click={JS.show(to: "#oglas-query-form", display: "block")}
+  phx-click={
+    JS.show(
+      to: ".oglas-query-form",
+      display: "block",
+      transition: {"ease-out duration-300", "opacity-0", "opacity-100"}
+    )
+  }
 >
   <Heroicons.magnifying_glass class=" h-10 w-10" />
 </div>
+<div
+  class="oglas-query-form hidden fixed w-[100vw] h-[100vh] bg-transparent z-9 left-0 top-0 "
+  phx-click={
+    JS.hide(
+      to: ".oglas-query-form",
+      transition: {"ease-out duration-300", "opacity-100", "opacity-0"}
+    )
+  }
+>
+</div>
 <.simple_form
   for={@query_form}
-  class="hidden fixed top-10 w-4/5 left-[10%] p-5 rounded"
+  class="oglas-query-form hidden fixed top-10 w-4/5 left-[10%] p-5 rounded"
   id="oglas-query-form"
   phx-hook="QueryAds"
 >
   <div class="flex items-center flex-col justify-around w-full">
     <Heroicons.x_mark
       class="w-10 h-10 self-end m-5 cursor-pointer"
-      phx-click={JS.hide(to: "#oglas-query-form")}
+      phx-click={
+        JS.hide(
+          to: ".oglas-query-form",
+          transition: {"ease-out duration-300", "opacity-100", "opacity-0"}
+        )
+      }
     />
     <div class="p-5 grid md:grid-cols-2 basis-full w-full gap-4">
       <div class="col-span-2">
@@ -66,7 +87,15 @@
         />
       </div>
     </div>
-    <.button class="mb-3 w-1/2" phx-click={JS.hide(to: "#oglas-query-form")}>
+    <.button
+      class="mb-3 w-1/2"
+      phx-click={
+        JS.hide(
+          to: ".oglas-query-form",
+          transition: {"ease-out duration-300", "opacity-100", "opacity-0"}
+        )
+      }
+    >
       Potvrdi
     </.button>
   </div>
@@ -79,7 +108,7 @@
 >
   <%= for {dom_id, ad} <- @streams.ads do %>
     <li
-      class="flex flex-col items-center w-4/5 md:w-[30rem] p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
+      class="shadow-lg flex flex-col items-center w-4/5 md:w-[30rem] p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
       id={dom_id}
     >
       <div class="w-full flex justify-between items-center">
@@ -91,7 +120,7 @@
           <h4 class="text-[1rem] font-bold"><%= ad.user.profile.username %></h4>
         </.link>
         <.link
-          :if={@current_user && @current_user.id == ad.user_id}
+          :if={is_owner?(ad, @current_user)}
           class="mx-5"
           phx-click={JS.push("delete", value: %{id: ad.id})}
           data-confirm="Da li ste sigurni?"

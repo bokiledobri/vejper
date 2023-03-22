@@ -1,0 +1,94 @@
+<div
+  class="add-field-menu hidden fixed w-full h-full bg-transparent z-9 left-0 top-0 "
+  phx-click={
+    JS.hide(
+      to: ".add-field-menu",
+      transition: {"ease-out duration-300", "opacity-100", "opacity-0"}
+    )
+  }
+>
+</div>
+<header class="relative flex flex-row justify-between">
+  <%= @category.name %>
+  <.button phx-click={
+    JS.show(
+      to: ".add-field-menu",
+      transition: {"ease-out duration-300", "opacity-0", "opacity-100"}
+    )
+  }>
+    Dodaj polje
+  </.button>
+  <div class="add-field-menu hidden divide-solid divide-y-2 divide-black dark:divide-white absolute top-full right-0 rounded shadow-lg">
+    <.link
+      patch={~p"/admin/kategorija/#{@category.id}/polja/novo"}
+      phx-click={JS.push_focus()}
+      class="block py-3 px-5 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
+    >
+      Novo
+    </.link>
+    <.link
+      navigate={~p"/admin/kategorija/#{@category.id}/polja"}
+      phx-click={JS.push_focus()}
+      class="block py-3 px-5 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
+    >
+      Postojeće
+    </.link>
+  </div>
+</header>
+
+<.back navigate={~p"/admin"}>Nazad na početnu</.back>
+
+<.simple_form for={@category_form} id="category-form" phx-change="validate" phx-submit="save">
+  <.input field={@category_form[:name]} type="text" label="Naziv" />
+  <:actions>
+    <.button phx-disable-with="Čuvanje...">Sačuvaj</.button>
+  </:actions>
+</.simple_form>
+<.table
+  id="fields"
+  rows={@category.fields}
+  row_click={
+    fn field ->
+      JS.navigate(~p"/admin/kategorija/#{@category.id}/polje/#{field.id}/uredi")
+    end
+  }
+>
+  <:col :let={field} label="Naziv"><%= field.name %></:col>
+  <:col :let={field} label="Tip"><%= field.type %></:col>
+  <:col :let={field} label="Opcije">
+    <%= if field.values, do: Enum.join(field.values, ", "), else: "" %>
+  </:col>
+</.table>
+
+<.modal
+  :if={@live_action == :associate_fields}
+  id="field-modal-associate"
+  show
+  on_cancel={JS.patch(~p"/admin/kategorija/#{@category}")}
+>
+  <.live_component
+    module={VejperWeb.Admin.CategoryAssociateFieldsComponent}
+    id={"category-associate-fields-#{@category.id}"}
+    title={@page_title}
+    field={@field}
+    category={@category}
+    action={@live_action}
+    patch={~p"/admin/kategorija/#{@category}"}
+  />
+</.modal>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="field-modal-form"
+  show
+  on_cancel={JS.patch(~p"/admin/kategorija/#{@category}")}
+>
+  <.live_component
+    module={VejperWeb.Admin.FieldFormComponent}
+    id={"form-field-#{@category.id}"}
+    title={@page_title}
+    field={@field}
+    category={@category}
+    action={@live_action}
+    patch={~p"/admin/kategorija/#{@category}"}
+  />
+</.modal>

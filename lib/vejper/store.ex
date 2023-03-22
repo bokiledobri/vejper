@@ -199,20 +199,24 @@ defmodule Vejper.Store do
     Repo.get!(Category, id) |> Repo.preload(:fields)
   end
 
-  def create_category(name) do
+  def create_category(attrs) do
     %Category{}
-    |> Category.changeset(%{"name" => name})
+    |> Category.changeset(attrs)
     |> Repo.insert()
   end
 
-  def update_category(%Category{} = category, name) do
+  def update_category(%Category{} = category, attrs) do
     category
-    |> Category.changeset(%{"name" => name})
+    |> Category.changeset(attrs)
     |> Repo.update()
   end
 
   def delete_category(%Category{} = category) do
     Repo.delete(category)
+  end
+
+  def change_category(%Category{} = category, attrs \\ %{}) do
+    Category.changeset(category, attrs)
   end
 
   def list_fields() do
@@ -229,6 +233,13 @@ defmodule Vejper.Store do
     |> Repo.insert()
   end
 
+  def create_field(%Category{} = category, attrs) do
+    %Field{}
+    |> Repo.preload(:categories)
+    |> Field.changeset(attrs, category)
+    |> Repo.insert()
+  end
+
   def update_field(%Field{} = field, attrs) do
     field
     |> Field.changeset(attrs)
@@ -239,11 +250,15 @@ defmodule Vejper.Store do
     Repo.delete(field)
   end
 
+  def change_field(%Field{} = field, attrs \\ %{}) do
+    Field.changeset(field, attrs)
+  end
+
   def assign_fields_to_category(%Category{} = category, fields) do
     category
     |> Category.changeset(%{})
     |> Ecto.Changeset.put_assoc(:fields, fields)
-    |> Repo.insert()
+    |> Repo.update()
   end
 
   def subscribe(id) when is_integer(id) do

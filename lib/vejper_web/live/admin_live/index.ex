@@ -1,14 +1,47 @@
 defmodule VejperWeb.AdminLive.Index do
   use VejperWeb, :live_view
 
+  alias Vejper.Store
+  alias Vejper.Store.Category
+
+  @impl true
   def mount(_params, _session, socket) do
-    categories = Store.list_categories()
-    fields = Store.list_fields()
+    {:ok, stream(socket, :categories, Store.list_categories())}
+  end
 
-    socket =
-      assign(socket(:categories, categories))
-      |> assign(:fields, fields)
+  @impl true
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
 
-    {:ok, socket}
+  defp apply_action(socket, :edit, %{"id" => id}) do
+    socket
+    |> assign(:page_title, "Uredi kategoriju")
+    |> assign(:category, Store.get_category!(id))
+  end
+
+  defp apply_action(socket, :new, _params) do
+    socket
+    |> assign(:page_title, "Dodaj kategoriju")
+    |> assign(:category, %Category{})
+  end
+
+  defp apply_action(socket, :index, _params) do
+    socket
+    |> assign(:page_title, "Admin")
+    |> assign(:category, nil)
+  end
+
+  @impl true
+  def handle_info({VejperWeb.Admin.CategoryLive.FormComponent, {:saved, category}}, socket) do
+    {:noreply, stream_insert(socket, :categories, category)}
+  end
+
+  @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    category = Store.get_category!(id)
+    {:ok, _} = Store.delete_category(category)
+
+    {:noreply, stream_delete(socket, :categories, category)}
   end
 end

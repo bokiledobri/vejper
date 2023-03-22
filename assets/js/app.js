@@ -22,7 +22,7 @@ import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import infiniteScroll from "./infiniteScroll"
-import queryAds from "./queryAds"
+import { dropzone, dropped, queryAds } from "./hooks"
 let documentScroll = () => {
     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
     let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
@@ -49,14 +49,15 @@ let Hooks = {
     InfiniteScroll: infiniteScroll(documentScroll, () => window),
     CommentsInfiniteScroll: commentsInfiniteScroll,
     MessagesInfiniteScroll: messagesInfiniteScroll,
-    QueryAds: queryAds()
+    QueryAds: queryAds(),
+    Dropzone: dropzone(),
+    Dropped: dropped()
 }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
     params: { _csrf_token: csrfToken },
     hooks: Hooks
 })
-
 
 
 // Show progress bar on live navigation and form submits
@@ -68,10 +69,6 @@ window.addEventListener("phx:clear-input", (e) => {
     if (el) {
         el.value = ""
     }
-})
-window.addEventListener("clear-ads", (_e) => {
-    let el = document.getElementById("ads-list")
-    el.innerHTML = ''
 })
 // connect if there are any LiveViews on the page
 liveSocket.connect()

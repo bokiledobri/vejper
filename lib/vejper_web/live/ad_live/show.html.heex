@@ -2,7 +2,7 @@
   <div class="flex justify-between">
     <.back navigate={~p"/oglasi"}>Nazad</.back>
     <.link
-      :if={@current_user && @current_user.id == @ad.user_id}
+      :if={is_owner?(@ad, @current_user)}
       patch={~p"/oglas/#{@ad}/uredi"}
       phx-click={JS.push_focus()}
     >

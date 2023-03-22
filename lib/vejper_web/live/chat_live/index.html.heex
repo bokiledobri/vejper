@@ -18,7 +18,7 @@
       <li
         :for={room <- @rooms}
         id={"room-#{room.id}"}
-        class={"flex cursor-pointer w-full px-5 items-center m-2 " <> if @room  && @room.id == room.id, do: "bg-zinc-800 dark: bg-zinc-200 rounded", else: ""}
+        class={"flex cursor-pointer w-full px-5 items-center m-2 " <> if @room  && @room.id == room.id, do: "bg-zinc-200 dark:bg-zinc-800 rounded", else: ""}
       >
         <.link navigate={~p"/caskanje/#{room.id}"} class="basis-full font-bold py-3">
           <%= room.name %>
@@ -27,7 +27,7 @@
           <span><%= room.online_users %></span><span class="text-[0.6rem] italic"> onlajn</span>
         </div>
         <.link
-          :if={@current_user.chat_room == room}
+          :if={is_owner?(room, @current_user)}
           class="ml-3 mr-1"
           patch={~p"/caskanje/sobe/#{room.id}/uredi"}
         >
@@ -67,7 +67,7 @@
           </p>
         </div>
         <Heroicons.trash
-          :if={message.user_id == @current_user.id && message.state != "deleted"}
+          :if={is_owner?(message, @current_user) && message.state != "deleted"}
           phx-click="delete-message"
           phx-value-message={message.id}
           class="py-1 self-center w-6 h-6 text-zinc-500 cursor-pointer absolute left-full inset-x-auto"

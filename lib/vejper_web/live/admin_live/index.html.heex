@@ -1,1 +1,45 @@
-<h1 class="font-bold text-[2rem] text-green-500">Admin Area</h1>
+<.header>
+  <:actions>
+    <.link patch={~p"/admin/kategorije/nova"}>
+      <.button>Dodaj kategoriju</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="categories"
+  rows={@streams.categories}
+  row_click={fn {_id, category} -> JS.navigate(~p"/admin/kategorija/#{category}") end}
+>
+  <:col :let={{_id, category}} label="Name"><%= category.name %></:col>
+  <:action :let={{_id, category}}>
+    <div class="sr-only">
+      <.link navigate={~p"/admin/kategorija/#{category}"}>Prikaži</.link>
+    </div>
+    <.link patch={~p"/admin/kategorija/#{category}/uredi"}>Uredi</.link>
+  </:action>
+  <:action :let={{id, category}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: category.id}) |> hide("##{id}")}
+      data-confirm="Da li ste sigurni?"
+    >
+      Obriši
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="category-modal"
+  show
+  on_cancel={JS.navigate(~p"/admin")}
+>
+  <.live_component
+    module={VejperWeb.Admin.CategoryFormComponent}
+    id={@category.id || :new}
+    title={@page_title}
+    action={@live_action}
+    category={@category}
+    patch={~p"/admin"}
+  />
+</.modal>

@@ -4,7 +4,11 @@ defmodule Vejper.Store.Category do
 
   schema "store_categories" do
     field :name, :string
-    many_to_many :fields, Vejper.Store.Field, join_through: "store_categories_fields"
+
+    many_to_many :fields, Vejper.Store.Field,
+      join_through: "store_categories_fields",
+      on_replace: :delete
+
     timestamps()
   end
 

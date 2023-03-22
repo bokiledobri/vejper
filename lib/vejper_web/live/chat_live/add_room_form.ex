@@ -62,7 +62,7 @@ defmodule VejperWeb.ChatLive.AddRoomForm do
   end
 
   defp save_room(:edit, params, socket) do
-    if check_owner(socket.assigns.room, socket) do
+    if owner?(socket.assigns.room, socket) do
       case Chat.update_room(socket.assigns.room, params) do
         {:ok, _room} ->
           {:noreply, push_navigate(socket, to: ~p"/caskanje")}

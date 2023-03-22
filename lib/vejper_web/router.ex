@@ -115,6 +115,12 @@ defmodule VejperWeb.Router do
         {VejperWeb.UserAuth, :ensure_admin}
       ] do
       live "/", AdminLive.Index, :index
+      live "/kategorija/:id", AdminLive.Category, :show
+      live "/kategorija/:id/polja", AdminLive.Category, :associate_fields
+      live "/kategorija/:id/polja/novo", AdminLive.Category, :new
+      live "/kategorija/:id/polje/:field_id/uredi", AdminLive.Category, :edit
+      live "/kategorija/:id/uredi", AdminLive.Category, :edit
+      live "/kategorije/nova", AdminLive.Index, :new
     end
   end
 

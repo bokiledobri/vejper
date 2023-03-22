@@ -20,8 +20,10 @@
         <.link class="font-bold text-[1rem]" navigate={~p"/objave"}>Objave</.link>
         <.link class="font-bold text-[1rem]" navigate={~p"/oglasi"}>Oglasi</.link>
         <%= if @current_user do %>
+          <.link class="font-bold text-[1rem]" navigate={~p"/caskanje"}>
+            <Heroicons.chat_bubble_bottom_center class="w-8 h-8" />
+          </.link>
           <.link class="font-bold text-[1rem]" navigate={~p"/profili"}>Korisnici</.link>
-          <.link class="font-bold text-[1rem]" navigate={~p"/caskanje"}>Ćaskanje</.link>
           <li>
             <div
               phx-click={
@@ -90,6 +92,14 @@
                     </.link>
                   </li>
                 <% end %>
+                <li :if={is_admin?(@current_user)}>
+                  <.link
+                    navigate={~p"/admin"}
+                    class="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-600 dark:hover:text-white"
+                  >
+                    Admin
+                  </.link>
+                </li>
                 <li>
                   <.link
                     navigate={~p"/nalog/podesavanja"}

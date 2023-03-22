@@ -8,7 +8,7 @@
   <%= for {dom_id, post} <- @streams.posts do %>
     <div
       id={dom_id}
-      class=" w-[80%] bg-zinc-50 dark:bg-zinc-900 rounded items-center flex flex-col justify-around py-3"
+      class="shadow-lg w-[80%] bg-zinc-50 dark:bg-zinc-900 rounded items-center flex flex-col justify-around py-3"
     >
       <.link
         navigate={~p"/profil/#{post.user.profile.id}"}

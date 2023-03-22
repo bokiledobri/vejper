@@ -170,7 +170,7 @@ defmodule VejperWeb.AdLive.FormComponent do
   end
 
   defp save_ad(socket, :edit, ad_params, category) do
-    if check_owner(socket.assigns.ad, socket) do
+    if owner?(socket.assigns.ad, socket) do
       old_images =
         if socket.assigns.images,
           do: Enum.map(socket.assigns.images, fn img -> %{"id" => img.id, "url" => img.url} end),

@@ -10,17 +10,16 @@
       <img src={@post.user.profile.profile_image_url} class="w-10 h-10 rounded-full" />
       <h4 class="text-[1rem] font-bold"><%= @post.user.profile.username %></h4>
     </.link>
-    <%= if @current_user do %>
-      <%= if @current_user.id == @post.user.id do %>
-        <div class="p-2 mx-2 bg-zinc-100 dark:bg-zinc-800 rounded">
-          <Heroicons.trash
-            phx-click="delete_post"
-            phx-value-id={@post.id}
-            class="mx-3 cursor-pointer w-10 h-10 text-black dark:text-white"
-          />
-        </div>
-      <% end %>
-    <% end %>
+    <div
+      :if={is_owner?(@post, @current_user)}
+      class="p-2 mx-2 bg-zinc-100 dark:bg-zinc-800 rounded"
+    >
+      <Heroicons.trash
+        phx-click="delete_post"
+        phx-value-id={@post.id}
+        class="mx-3 cursor-pointer w-10 h-10 text-black dark:text-white"
+      />
+    </div>
   </header>
   <h2 class="text-[1.2rem] font-bold"><%= @post.title %></h2>
   <%= if @active_image do %>
@@ -84,7 +83,7 @@
     <span><%= @post.reactions %></span>
   </div>
   <.datetime dt={@post.inserted_at} />
-  <%= if @current_user do %>
+  <%= if @current_user && @current_user.profile do %>
     <.awesome_input
       show={@current_user.profile}
       form={@comment_form}
@@ -101,7 +100,7 @@
     <%= for {dom_id, comment} <- @streams.comments do %>
       <li
         id={dom_id}
-        class="w-full p-2 relative  flex bg-zinc-100 dark:bg-zinc-900 border-solid border-2 border-zinc-500"
+        class="w-full p-2 relative shadow-lg flex bg-zinc-100 dark:bg-zinc-900 border-solid border-2 border-zinc-500"
       >
         <.link navigate={~p"/profil/#{comment.user.profile.id}"} class="shrink-0">
           <img
@@ -117,7 +116,7 @@
           <p><%= comment.body %></p>
         </div>
         <Heroicons.trash
-          :if={@current_user && comment.user_id == @current_user.id}
+          :if={is_owner?(comment, @current_user)}
           phx-click="delete"
           phx-value-comment={comment.id}
           class="py-1 self-center w-8 h-8 cursor-pointer"

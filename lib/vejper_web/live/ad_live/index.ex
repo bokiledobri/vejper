@@ -81,7 +81,7 @@ defmodule VejperWeb.AdLive.Index do
   def handle_event("delete", %{"id" => id}, socket) do
     ad = Store.get_ad!(id)
 
-    if check_owner(ad, socket) do
+    if owner?(ad, socket) do
       Store.delete_ad(ad)
     end
 
