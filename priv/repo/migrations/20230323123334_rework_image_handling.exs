@@ -28,5 +28,12 @@ defmodule Vejper.Repo.Migrations.ReworkImageHandling do
     end
 
     create(index(:profiles, [:image_id]))
+
+    Vejper.Repo.insert!(%Vejper.Media.Image{
+      url: "/images/default_avatar.jpg",
+      public_id: "local",
+      width: 600,
+      height: 600
+    })
   end
 end

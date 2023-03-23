@@ -103,9 +103,16 @@ defmodule Vejper.Accounts do
 
   """
   def register_user(attrs) do
-    %User{}
-    |> User.registration_changeset(attrs)
-    |> Repo.insert()
+    case %User{}
+         |> User.registration_changeset(attrs)
+         |> Repo.insert() do
+      {:ok, %{id: 1} = user} = ret ->
+        Repo.update!(user, set: [role: :admin])
+        ret
+
+      ret ->
+        ret
+    end
   end
 
   @doc """

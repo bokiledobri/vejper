@@ -17,11 +17,11 @@ alias Vejper.Accounts.User
 ExUnit.start()
 Faker.start()
 
-Enum.each(1..1000, fn _ ->
+Enum.each(1..50, fn _ ->
   title = Faker.Commerce.product_name()
   description = Faker.Lorem.paragraph(2..20)
-  images = Enum.map(1..3, fn _ -> %{"url" => Faker.Avatar.image_url()} end)
-
+  images = Enum.map(1..3, fn _ -> Faker.Avatar.image_url() |> Vejper.Media.upload_image() end)
+  images = Enum.map(images, fn {:ok, image} -> image end)
   state = Enum.random(Repo.get!(Lists, "ad_states").items)
 
   price = Enum.random(3..300) * 100
@@ -33,11 +33,10 @@ Enum.each(1..1000, fn _ ->
   ad = %{
     "title" => title,
     "description" => description,
-    "images" => images,
     "state" => state,
     "price" => price,
     "city" => city
   }
 
-  Store.create_ad(user_id, ad, category)
+  Store.create_ad(user_id, ad, category, images)
 end)
