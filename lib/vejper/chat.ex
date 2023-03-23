@@ -126,7 +126,7 @@ defmodule Vejper.Chat do
 
   def get_message!(id) do
     Repo.get!(Message, id)
-    |> Repo.preload([:room, [user: :profile]])
+    |> Repo.preload([:room, [user: [profile: :image]]])
   end
 
   def delete_message(message) do
@@ -144,7 +144,7 @@ defmodule Vejper.Chat do
         where: m.room_id == ^room_id,
         order_by: [desc: :inserted_at],
         order_by: [desc: :id],
-        preload: [user: :profile],
+        preload: [user: [profile: :image]],
         limit: ^limit,
         where: m.inserted_at < ^last_insert
       )

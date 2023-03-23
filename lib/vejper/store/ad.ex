@@ -30,13 +30,13 @@ defmodule Vejper.Store.Ad do
     field :title, :string
     belongs_to :user, Vejper.Accounts.User, on_replace: :nilify
     belongs_to :category, Vejper.Store.Category, on_replace: :nilify
-    has_many :images, Vejper.Store.Image, on_replace: :delete_if_exists
+    many_to_many :images, Vejper.Media.Image, join_through: "ads_images", on_replace: :delete
 
     timestamps()
   end
 
   @doc false
-  def changeset(ad, attrs, %Vejper.Store.Category{} = category) do
+  def changeset(ad, attrs, %Vejper.Store.Category{} = category, images) do
     attrs =
       cond do
         attrs["fields"] ->
@@ -95,7 +95,7 @@ defmodule Vejper.Store.Ad do
     ad
     |> cast(attrs, [:title, :description, :price, :city, :state])
     |> cast_embed(:fields)
-    |> cast_assoc(:images)
+    |> put_assoc(:images, images)
     |> put_assoc(:category, category)
     |> validate_required([:title, :price, :city, :state], message: "Obavezno polje")
   end

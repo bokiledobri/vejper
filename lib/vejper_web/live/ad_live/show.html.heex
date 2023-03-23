@@ -13,7 +13,7 @@
     navigate={~p"/profil/#{@ad.user.profile.id}"}
     class="self-start flex flex-row gap-3 items-center ml-2"
   >
-    <img src={@ad.user.profile.profile_image_url} class="w-10 h-10 rounded-full" />
+    <img src={@ad.user.profile.image.url} class="w-10 h-10 rounded-full" />
     <h4 class="text-[1rem] font-bold"><%= @ad.user.profile.username %></h4>
   </.link>
   <h2 class="text-[1.5rem] font-bold text-center"><%= @ad.title %></h2>

@@ -1,6 +1,7 @@
 defmodule VejperWeb.PostLive.FormComponent do
   use VejperWeb, :live_component
 
+  alias Vejper.Media
   alias Vejper.Social
 
   @impl true
@@ -76,7 +77,7 @@ defmodule VejperWeb.PostLive.FormComponent do
 
   @impl true
   def update(%{post: post} = assigns, socket) do
-    changeset = Social.change_post(post)
+    changeset = Social.change_post(post, %{})
 
     {:ok,
      socket
@@ -101,10 +102,13 @@ defmodule VejperWeb.PostLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"post" => post_params}, socket) do
+    IO.inspect(post_params)
+
     changeset =
       socket.assigns.post
       |> Social.change_post(post_params)
-      |> Map.put(:action, :validate)
+
+    IO.inspect(changeset)
 
     {:noreply, assign_form(socket, changeset)}
   end
@@ -157,7 +161,7 @@ defmodule VejperWeb.PostLive.FormComponent do
 
   defp handle_images(socket) do
     consume_uploaded_entries(socket, :images, fn %{path: path}, _entry ->
-      Cloudex.upload(path)
+      Media.upload_image(path)
     end)
   end
 

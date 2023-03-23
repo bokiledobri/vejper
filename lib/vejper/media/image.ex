@@ -1,13 +1,12 @@
-defmodule Vejper.Social.Image do
+defmodule Vejper.Media.Image do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "social_images" do
-    field :url, :string
-    field :public_id, :string
-    field :width, :integer
+  schema "images" do
     field :height, :integer
-    belongs_to :post, Vejper.Social.Post, on_replace: :nilify
+    field :public_id, :string
+    field :url, :string
+    field :width, :integer
 
     timestamps()
   end
@@ -16,6 +15,6 @@ defmodule Vejper.Social.Image do
   def changeset(image, attrs) do
     image
     |> cast(attrs, [:url, :width, :height, :public_id])
-    |> validate_required([:url])
+    |> validate_required([:url, :width, :height, :public_id])
   end
 end

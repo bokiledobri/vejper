@@ -1,6 +1,7 @@
 defmodule VejperWeb.AdLive.FormComponent do
   use VejperWeb, :live_component
 
+  alias Vejper.Media
   alias Vejper.Store.Category
   alias Vejper.Store
 
@@ -207,8 +208,6 @@ defmodule VejperWeb.AdLive.FormComponent do
   end
 
   defp save_ad(socket, :new, ad_params, category) do
-    IO.puts("CALLED")
-
     case Store.create_ad(
            socket.assigns.current_user.id,
            ad_params,
@@ -228,7 +227,7 @@ defmodule VejperWeb.AdLive.FormComponent do
 
   defp handle_images(socket) do
     consume_uploaded_entries(socket, :images, fn %{path: path}, _entry ->
-      Cloudex.upload(path)
+      Media.upload_image(path)
     end)
   end
 

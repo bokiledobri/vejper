@@ -4,6 +4,7 @@ defmodule Vejper.Social do
   """
 
   import Ecto.Query, warn: false
+  alias Vejper.Media
   alias Vejper.Repo
   alias Ecto.Multi
 
@@ -23,7 +24,7 @@ defmodule Vejper.Social do
 
     posts =
       from(p in Post,
-        preload: [:images, [user: :profile]],
+        preload: [:images, [user: [profile: :image]]],
         order_by: [desc: :inserted_at],
         order_by: [desc: :id],
         left_join: u in assoc(p, :users),
@@ -68,7 +69,7 @@ defmodule Vejper.Social do
       where: p.id == ^id,
       left_join: u in assoc(p, :users),
       group_by: p.id,
-      preload: [user: :profile],
+      preload: [user: [profile: :image]],
       preload: :images,
       preload: :users,
       select_merge: %{reactions: count(u.id)}
@@ -77,24 +78,10 @@ defmodule Vejper.Social do
   end
 
   def create_post(%Vejper.Accounts.User{} = user, attrs \\ %{}, images) do
-    images =
-      Enum.map(images, fn img ->
-        %{
-          "url" => img.url,
-          "public_id" => img.public_id,
-          "width" => img.width,
-          "height" => img.height
-        }
-      end)
-
-    attrs = Map.put(attrs, "images", images)
-
     changeset =
       user
       |> Ecto.build_assoc(:posts)
-      |> Post.changeset(attrs)
-
-    IO.inspect(changeset)
+      |> Post.changeset(attrs, images)
 
     case changeset
          |> Repo.insert() do
@@ -147,7 +134,7 @@ defmodule Vejper.Social do
 
   """
   def delete_post(%Post{} = post) do
-    Cloudex.delete(Enum.map(post.images, fn %{public_id: id} -> id end))
+    Enum.each(post.images, fn image -> Media.delete_image(image) end)
     Repo.delete(post)
     broadcast(post, :post_deleted)
   end
@@ -162,7 +149,7 @@ defmodule Vejper.Social do
 
   """
   def change_post(%Post{} = post, attrs \\ %{}) do
-    Post.changeset(post, attrs)
+    Post.changeset(post, attrs, nil)
   end
 
   def list_comments(post_id, cursor \\ {NaiveDateTime.utc_now(), 10}) do
@@ -173,7 +160,7 @@ defmodule Vejper.Social do
         where: c.post_id == ^post_id,
         order_by: [desc: :inserted_at],
         order_by: [desc: :id],
-        preload: [user: :profile],
+        preload: [user: [profile: :image]],
         limit: ^limit,
         where: c.inserted_at < ^last_insert
       )

@@ -7,9 +7,10 @@
     <.link navigate={~p"/profil/#{profile.id}"}>
       <div class="shadow-lg flex flex-col gap-3 p-3 items-center bg-zinc-200 rounded cursor-pointer dark:bg-zinc-800 :w-[350px]">
         <img
+          :if={profile.image}
           class="w-[300px] h-[300px] rounded-full"
-          src={profile.profile_image_url}
-          alt={profile.profile_image_url}
+          src={profile.image.url}
+          alt={profile.image.url}
         />
         <h2 class="font-bold text-[1.5rem]"><%= profile.username %></h2>
       </div>

@@ -26,7 +26,7 @@ defmodule VejperWeb.ProfileLive.Index do
     socket
     |> assign(:page_title, "Uredi profil")
     |> assign(:profile, profile)
-    |> assign(:uploaded_files, [profile.profile_image_url])
+    |> assign(:uploaded_files, [profile.image.url])
     |> allow_upload(:avatar, accept: ~w(.png .jpg .jpeg), max_entries: 1)
   end
 

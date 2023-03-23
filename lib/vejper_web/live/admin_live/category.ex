@@ -81,8 +81,7 @@ defmodule VejperWeb.AdminLive.Category do
         {:ok, category} ->
           assign(socket, :category, category)
 
-        {:error, error} ->
-          IO.inspect(error)
+        _ ->
           socket
       end
 

@@ -1,35 +1,33 @@
 defmodule Vejper.Accounts.Profile do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Vejper.Repo
 
   schema "profiles" do
     field :city, :string
-    field :profile_image_url, :string
-    field :profile_image_key, :string
     field :username, :string
     field :date_of_birth, :date
     field :age, :integer, virtual: true
+    belongs_to :image, Vejper.Media.Image, on_replace: :nilify
     belongs_to :user, Vejper.Accounts.User
 
     timestamps()
   end
 
   @doc false
-  def user_changeset(%Vejper.Accounts.User{} = user, attrs) do
+  def user_changeset(%Vejper.Accounts.User{} = user, attrs, image) do
     user
-    |> Repo.preload(:profile)
-    |> cast(%{"profile" => attrs}, [])
-    |> cast_assoc(:profile)
+    |> Ecto.build_assoc(:profile)
+    |> changeset(attrs, image)
   end
 
-  def changeset(profile, attrs) do
+  def changeset(profile, attrs, image) do
     profile
-    |> cast(attrs, [:username, :city, :profile_image_url, :profile_image_key, :date_of_birth])
+    |> cast(attrs, [:username, :city, :date_of_birth])
     |> validate_required([:username], message: "obavezno polje")
     |> unsafe_validate_unique(:username, Vejper.Repo, message: "korisničko ime je već u upotrebi")
     |> unique_constraint(:username, message: "korisničko ime je već u upotrebi")
     |> validate_xrated()
+    |> put_assoc(:image, image)
   end
 
   def validate_xrated(changeset) do
@@ -42,7 +40,7 @@ defmodule Vejper.Accounts.Profile do
     end)
   end
 
-  def calculate_age(dob) do
+  defp calculate_age(dob) do
     today = Date.utc_today()
     {:ok, today_in_birthday_year} = Date.new(dob.year, today.month, today.day)
     years_diff = today.year - dob.year

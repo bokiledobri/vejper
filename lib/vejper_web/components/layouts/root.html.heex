@@ -39,8 +39,8 @@
                   id="avatarButton"
                   type="button"
                   class="w-10 h-10 rounded-full relative"
-                  src={@current_user.profile.profile_image_url}
-                  alt={@current_user.profile.profile_image_url}
+                  src={@current_user.profile.image.url}
+                  alt={@current_user.profile.image.url}
                 />
                 <h3 class="font-bold text-[1rem] text-black dark:text-white ml-2">
                   <%= @current_user.profile.username %>

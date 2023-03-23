@@ -4,6 +4,7 @@ defmodule Vejper.Store do
   """
 
   import Ecto.Query, warn: false
+  alias Vejper.Media
   alias Vejper.Store.{Query, Category, Field}
   alias Vejper.Repo
 
@@ -11,7 +12,7 @@ defmodule Vejper.Store do
 
   defp store_ads_query() do
     from(a in Ad,
-      preload: [user: :profile],
+      preload: [user: [profile: :image]],
       preload: :images,
       preload: [category: :fields]
     )
@@ -118,7 +119,8 @@ defmodule Vejper.Store do
 
   """
   def get_ad!(id),
-    do: Repo.get!(Ad, id) |> Repo.preload([:images, [user: :profile], [category: :fields]])
+    do:
+      Repo.get!(Ad, id) |> Repo.preload([:images, [user: [profile: :image]], [category: :fields]])
 
   @doc """
   Creates a ad.
@@ -133,21 +135,11 @@ defmodule Vejper.Store do
 
   """
   def create_ad(user_id, attrs \\ %{}, %Category{} = category, images) do
-    images =
-      Enum.map(images, fn img ->
-        %{
-          "url" => img.url,
-          "public_id" => img.public_id,
-          "width" => img.width,
-          "height" => img.height
-        }
-      end)
-
     attrs = Map.put(attrs, "images", images)
 
     Vejper.Accounts.get_user!(user_id)
     |> Ecto.build_assoc(:ads)
-    |> Ad.changeset(attrs, category)
+    |> Ad.changeset(attrs, category, images)
     |> Repo.insert()
     |> broadcast(:ad_created, :all)
   end
@@ -167,23 +159,11 @@ defmodule Vejper.Store do
   def update_ad(%Ad{} = ad, attrs, %Category{} = category, images) do
     Enum.each(ad.images, fn img ->
       if !Enum.any?(images, fn i -> i.public_id == img.public_id end),
-        do: Cloudex.delete(img.public_id)
+        do: Media.delete_image(img)
     end)
 
-    images =
-      Enum.map(images, fn img ->
-        %{
-          "url" => img.url,
-          "public_id" => img.public_id,
-          "width" => img.width,
-          "height" => img.height
-        }
-      end)
-
-    attrs = Map.put(attrs, "images", images)
-
     ad
-    |> Ad.changeset(attrs, category)
+    |> Ad.changeset(attrs, category, images)
     |> Repo.update()
     |> broadcast(:ad_updated, :all)
     |> broadcast(:ad_updated)
@@ -202,7 +182,7 @@ defmodule Vejper.Store do
 
   """
   def delete_ad(%Ad{} = ad) do
-    Cloudex.delete(Enum.map(ad.images, fn %{public_id: id} -> id end))
+    Enum.each(ad.images, fn image -> Media.delete_image(image) end)
 
     Repo.delete(ad)
     |> broadcast(:ad_deleted, :all)
@@ -219,7 +199,7 @@ defmodule Vejper.Store do
 
   """
   def change_ad(%Ad{} = ad, attrs \\ %{}, category) do
-    Ad.changeset(ad, attrs, category)
+    Ad.changeset(ad, attrs, category, nil)
   end
 
   def list_categories() do

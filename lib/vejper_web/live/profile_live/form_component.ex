@@ -1,6 +1,7 @@
 defmodule VejperWeb.ProfileLive.FormComponent do
   use VejperWeb, :live_component
 
+  alias Vejper.Media
   alias Vejper.Accounts
 
   @impl true
@@ -25,11 +26,14 @@ defmodule VejperWeb.ProfileLive.FormComponent do
         <% end %>
         <.live_file_input upload={@uploads.avatar} />
         <%= if @uploads.avatar.entries == [] && @current_user.profile do %>
-          <div class="bg-zinc-100 dark:bg-zinc-900 flex flex-col items-center justify-around">
+          <div
+            :if={@current_user.profile.image}
+            class="bg-zinc-100 dark:bg-zinc-900 flex flex-col items-center justify-around"
+          >
             <img
-              src={@current_user.profile.profile_image_url}
+              src={@current_user.profile.image.url}
               class="w-[250px] h-[250px] rounded-full"
-              alt={@current_user.profile.profile_image_url}
+              alt={@current_user.profile.image.url}
             />
           </div>
         <% end %>
@@ -83,12 +87,11 @@ defmodule VejperWeb.ProfileLive.FormComponent do
 
   defp save_profile(socket, :edit, profile_params) do
     [img | _tail] = handle_image(socket)
-    profile_params = Map.put(profile_params, "profile_image_url", img.url)
-    profile_params = Map.put(profile_params, "profile_image_key", img.public_id)
 
     case Accounts.update_profile(
            socket.assigns.profile,
-           profile_params
+           profile_params,
+           img
          ) do
       {:ok, profile} ->
         notify_parent({:saved, profile})
@@ -105,10 +108,8 @@ defmodule VejperWeb.ProfileLive.FormComponent do
 
   defp save_profile(socket, :new, profile_params) do
     [img | _tail] = handle_image(socket)
-    profile_params = Map.put(profile_params, "profile_image_url", img.url)
-    profile_params = Map.put(profile_params, "profile_image_key", img.public_id)
 
-    case Accounts.create_profile(socket.assigns.current_user, profile_params) do
+    case Accounts.create_profile(socket.assigns.current_user, profile_params, img) do
       {:ok, profile} ->
         notify_parent({:saved, profile})
 
@@ -124,13 +125,13 @@ defmodule VejperWeb.ProfileLive.FormComponent do
 
   defp handle_image(socket) do
     case consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-           Cloudex.upload(path)
+           Media.upload_image(path)
          end) do
       [] ->
         if socket.assigns.current_user.profile do
-          [socket.assigns.current_user.profile.profile_image_url]
+          [socket.assigns.current_user.profile.image]
         else
-          ["/images/default_avatar.jpg"]
+          [%{id: 1, url: "/images/default_avatar.jpg"}]
         end
 
       rest ->

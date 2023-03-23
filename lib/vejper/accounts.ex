@@ -261,7 +261,7 @@ defmodule Vejper.Accounts do
     {:ok, query} = UserToken.verify_session_token_query(token)
 
     Repo.one(query)
-    |> Repo.preload(:profile)
+    |> Repo.preload(profile: :image)
   end
 
   @doc """
@@ -393,7 +393,7 @@ defmodule Vejper.Accounts do
 
   """
   def list_profiles do
-    Repo.all(Profile)
+    Repo.all(from(p in Profile, preload: :image))
   end
 
   @doc """
@@ -411,10 +411,10 @@ defmodule Vejper.Accounts do
 
   """
   def get_profile!(id),
-    do: Repo.get!(Profile, id) |> Profile.get_profile_age() |> Repo.preload(:user)
+    do: Repo.get!(Profile, id) |> Profile.get_profile_age() |> Repo.preload([:user, :image])
 
   def get_profile_by_user(user) do
-    user = Repo.preload(user, :profile)
+    user = Repo.preload(user, [:profile, [:image]])
 
     user.profile
     |> Profile.get_profile_age()
@@ -432,10 +432,10 @@ defmodule Vejper.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_profile(user, attrs \\ %{}) do
+  def create_profile(user, attrs \\ %{}, image) do
     user
-    |> Profile.user_changeset(attrs)
-    |> Repo.update()
+    |> Profile.user_changeset(attrs, image)
+    |> Repo.insert()
   end
 
   @doc """
@@ -450,13 +450,11 @@ defmodule Vejper.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_profile(%Profile{} = profile, %{"profile_image_key" => key} = attrs) do
-    if profile.profile_image_key != key do
-      Cloudex.delete(profile.profile_image_key)
-    end
+  def update_profile(%Profile{} = profile, attrs, image) do
+    if profile.image != image, do: Vejper.Media.delete_image(profile.image)
 
     profile
-    |> Profile.changeset(attrs)
+    |> Profile.changeset(attrs, image)
     |> Repo.update()
   end
 
@@ -486,6 +484,6 @@ defmodule Vejper.Accounts do
 
   """
   def change_profile(%Profile{} = profile, attrs \\ %{}) do
-    Profile.changeset(profile, attrs)
+    Profile.changeset(profile, attrs, nil)
   end
 end
