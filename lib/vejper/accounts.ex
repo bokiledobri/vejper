@@ -106,8 +106,8 @@ defmodule Vejper.Accounts do
     case %User{}
          |> User.registration_changeset(attrs)
          |> Repo.insert() do
-      {:ok, %{id: 1} = user} = ret ->
-        Repo.update!(user, set: [role: :admin])
+      {:ok, %{id: 1}} = ret ->
+        Repo.update_all(from(u in User, update: [set: [role: :admin]], where: u.id == 1), [])
         ret
 
       ret ->
