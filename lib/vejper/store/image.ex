@@ -4,7 +4,10 @@ defmodule Vejper.Store.Image do
 
   schema "store_images" do
     field :url, :string
-    field :ad_id, :id
+    field :public_id, :string
+    field :width, :integer
+    field :height, :integer
+    belongs_to :ad, Vejper.Store.Ad, on_replace: :nilify
 
     timestamps()
   end
@@ -12,7 +15,7 @@ defmodule Vejper.Store.Image do
   @doc false
   def changeset(image, attrs) do
     image
-    |> cast(attrs, [:url])
+    |> cast(attrs, [:url, :public_id, :width, :height])
     |> validate_required([:url])
   end
 end

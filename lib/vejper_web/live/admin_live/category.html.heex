@@ -44,6 +44,13 @@
     <.button phx-disable-with="Čuvanje...">Sačuvaj</.button>
   </:actions>
 </.simple_form>
+<h3 class="font-bold text-xl mt-4 mb-2">Dodatna polja</h3>
+<p>
+  Dodatna polja koja korisnik prilikom dodavanja oglasa može da popuni koja su svojstvena datoj kategoriji.
+  Tip polja može biti select gde korisnik ima niz opcija od kojih odabira jednu, text (običan tekst) i
+  number (gde korisnik unosi broj)
+</p>
+
 <.table
   id="fields"
   rows={@category.fields}

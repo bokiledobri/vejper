@@ -6,6 +6,7 @@ defmodule Vejper.Accounts.Profile do
   schema "profiles" do
     field :city, :string
     field :profile_image_url, :string
+    field :profile_image_key, :string
     field :username, :string
     field :date_of_birth, :date
     field :age, :integer, virtual: true
@@ -24,7 +25,7 @@ defmodule Vejper.Accounts.Profile do
 
   def changeset(profile, attrs) do
     profile
-    |> cast(attrs, [:username, :city, :profile_image_url, :date_of_birth])
+    |> cast(attrs, [:username, :city, :profile_image_url, :profile_image_key, :date_of_birth])
     |> validate_required([:username], message: "obavezno polje")
     |> unsafe_validate_unique(:username, Vejper.Repo, message: "korisničko ime je već u upotrebi")
     |> unique_constraint(:username, message: "korisničko ime je već u upotrebi")

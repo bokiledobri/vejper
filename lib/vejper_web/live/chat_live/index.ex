@@ -131,9 +131,7 @@ defmodule VejperWeb.ChatLive.Index do
   end
 
   @impl true
-  def handle_info(%{event: "presence_diff", payload: payload}, socket) do
-    IO.inspect(payload)
-
+  def handle_info(%{event: "presence_diff", payload: _payload}, socket) do
     rooms =
       socket.assigns.rooms
       |> Enum.map(fn room ->
@@ -162,6 +160,14 @@ defmodule VejperWeb.ChatLive.Index do
 
   defp apply_action(socket, _action, _params) do
     socket
+  end
+
+  defp banned?(%{chat_banned_until: nil}) do
+    false
+  end
+
+  defp banned?(%{chat_banned_until: ban_time}) do
+    NaiveDateTime.compare(NaiveDateTime.utc_now(), ban_time) == :lt
   end
 
   defp assign_form(socket, form, %Ecto.Changeset{} = changeset) do

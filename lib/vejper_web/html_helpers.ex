@@ -43,12 +43,20 @@ defmodule VejperWeb.HtmlHelpers do
     true
   end
 
+  def chat_mod?(%{assigns: %{current_user: %{mods: mods}}}) when is_list(mods) do
+    Enum.any?(mods, fn mod -> mod == :chat end)
+  end
+
   def chat_mod?(_conn) do
     false
   end
 
   def is_chat_mod?(%{role: :admin}) do
     true
+  end
+
+  def is_chat_mod?(%{mods: mods}) when is_list(mods) do
+    Enum.any?(mods, fn mod -> mod == :chat end)
   end
 
   def is_chat_mod?(_user) do
@@ -59,12 +67,20 @@ defmodule VejperWeb.HtmlHelpers do
     true
   end
 
+  def store_mod?(%{assigns: %{current_user: %{mods: mods}}}) when is_list(mods) do
+    Enum.any?(mods, fn mod -> mod == :ads end)
+  end
+
   def store_mod?(_conn) do
     false
   end
 
   def is_store_mod?(%{role: :admin}) do
     true
+  end
+
+  def is_store_mod?(%{mods: mods}) when is_list(mods) do
+    Enum.any?(mods, fn mod -> mod == :ads end)
   end
 
   def is_store_mod?(_user) do

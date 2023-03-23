@@ -5,10 +5,6 @@ defmodule VejperWeb.AdLive.Show do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket =
-      assign(socket, :uploaded_files, [])
-      |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
-
     {:ok, socket}
   end
 

@@ -44,6 +44,34 @@ defmodule Vejper.Accounts do
     if User.valid_password?(user, password), do: user
   end
 
+  def ban_user_from_chat(user, hours) do
+    until =
+      NaiveDateTime.add(NaiveDateTime.utc_now(), hours * 3600, :second)
+      |> NaiveDateTime.truncate(:second)
+
+    User.ban_changeset(user, %{"chat_banned_until" => until})
+    |> Repo.update()
+  end
+
+  def ban_user_from_ads(user, hours) do
+    until =
+      NaiveDateTime.add(NaiveDateTime.utc_now(), hours * 3600, :second)
+      |> NaiveDateTime.truncate(:second)
+
+    User.ban_changeset(user, %{"ads_banned_until" => until})
+    |> Repo.update()
+  end
+
+  def assign_mod(%User{} = user, mod) do
+    from(u in User, where: u.id == ^user.id, update: [push: [mods: ^mod]])
+    |> Repo.update_all([])
+  end
+
+  def deassign_mod(%User{} = user, mod) do
+    from(u in User, where: u.id == ^user.id, update: [pull: [mods: ^mod]])
+    |> Repo.update_all([])
+  end
+
   @doc """
   Gets a single user.
 
@@ -382,7 +410,8 @@ defmodule Vejper.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_profile!(id), do: Repo.get!(Profile, id) |> Profile.get_profile_age()
+  def get_profile!(id),
+    do: Repo.get!(Profile, id) |> Profile.get_profile_age() |> Repo.preload(:user)
 
   def get_profile_by_user(user) do
     user = Repo.preload(user, :profile)
@@ -421,7 +450,11 @@ defmodule Vejper.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_profile(%Profile{} = profile, attrs) do
+  def update_profile(%Profile{} = profile, %{"profile_image_key" => key} = attrs) do
+    if profile.profile_image_key != key do
+      Cloudex.delete(profile.profile_image_key)
+    end
+
     profile
     |> Profile.changeset(attrs)
     |> Repo.update()

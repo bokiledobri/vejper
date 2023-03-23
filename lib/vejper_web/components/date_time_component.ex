@@ -6,15 +6,14 @@ defmodule VejperWeb.DateTimeComponent do
   def datetime(assigns) do
     ~H"""
     <time class={@class}>
-      <%= date =
-        DateTime.from_naive!(@dt, "Europe/Belgrade")
-        |> DateTime.to_date()
+      <%= dt = DateTime.from_naive!(@dt, "Europe/Belgrade")
+      diff = dt.utc_offset + dt.std_offset
+      dt = DateTime.add(dt, diff)
+      date = DateTime.to_date(dt)
 
-      time =
-        DateTime.from_naive!(@dt, "Europe/Belgrade")
-        |> DateTime.to_time()
+      time = DateTime.to_time(dt)
 
-      transform_date(date) |> transform_time(time) %>
+      transform_date(date) |> transform_time(time, diff) %>
     </time>
     """
   end
@@ -39,9 +38,11 @@ defmodule VejperWeb.DateTimeComponent do
     end
   end
 
-  defp transform_time(date, time) do
+  defp transform_time(date, time, diff) do
+    now = Time.utc_now() |> Time.add(diff)
+
     if date == "Danas" do
-      case Time.utc_now() |> Time.diff(time, :second) do
+      case now |> Time.diff(time, :second) do
         n when n < 60 ->
           "Upravo sada"
 

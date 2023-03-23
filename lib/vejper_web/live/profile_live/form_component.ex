@@ -62,6 +62,8 @@ defmodule VejperWeb.ProfileLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:uploaded_files, [])
+     |> allow_upload(:avatar, accept: ~w(.png .jpg .jpeg), max_entries: 1)
      |> assign_form(changeset)}
   end
 
@@ -81,7 +83,8 @@ defmodule VejperWeb.ProfileLive.FormComponent do
 
   defp save_profile(socket, :edit, profile_params) do
     [img | _tail] = handle_image(socket)
-    profile_params = Map.put(profile_params, "profile_image_url", img)
+    profile_params = Map.put(profile_params, "profile_image_url", img.url)
+    profile_params = Map.put(profile_params, "profile_image_key", img.public_id)
 
     case Accounts.update_profile(
            socket.assigns.profile,
@@ -102,7 +105,8 @@ defmodule VejperWeb.ProfileLive.FormComponent do
 
   defp save_profile(socket, :new, profile_params) do
     [img | _tail] = handle_image(socket)
-    profile_params = Map.put(profile_params, "profile_image_url", img)
+    profile_params = Map.put(profile_params, "profile_image_url", img.url)
+    profile_params = Map.put(profile_params, "profile_image_key", img.public_id)
 
     case Accounts.create_profile(socket.assigns.current_user, profile_params) do
       {:ok, profile} ->
@@ -120,18 +124,7 @@ defmodule VejperWeb.ProfileLive.FormComponent do
 
   defp handle_image(socket) do
     case consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-           dest =
-             Path.join([
-               :code.priv_dir(:vejper),
-               "static",
-               "avatars",
-               Integer.to_string(socket.assigns.current_user.id) <> Path.extname(path)
-             ])
-
-           File.cp!(path, dest)
-
-           {:ok,
-            ~p"/avatars/#{Integer.to_string(socket.assigns.current_user.id) <> Path.extname(dest)}"}
+           Cloudex.upload(path)
          end) do
       [] ->
         if socket.assigns.current_user.profile do

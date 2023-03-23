@@ -19,6 +19,6 @@ defmodule Vejper.Social.Post do
     post
     |> cast(attrs, [:title, :body, :reactions])
     |> cast_assoc(:images)
-    |> validate_required([:title, :body])
+    |> validate_required([:title, :body], message: "obavezno polje")
   end
 end

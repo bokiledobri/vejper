@@ -16,7 +16,7 @@ defmodule VejperWeb.AdLive.Index do
     %{entries: ads, metadata: meta} = Store.list_ads(nil, %{})
 
     socket =
-      assign(socket, :uploaded_files, [])
+      socket
       |> assign(:after, meta.after)
       |> assign(:images, nil)
       |> assign(:prices, prices)
@@ -25,7 +25,6 @@ defmodule VejperWeb.AdLive.Index do
       |> assign(:query_params, query_params)
       |> assign(:query_categories, categories)
       |> assign_form(query)
-      |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
 
     {:ok, stream(socket, :ads, ads, dom_id: &"oglas-#{&1.id}")}
   end

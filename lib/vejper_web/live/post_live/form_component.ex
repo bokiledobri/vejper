@@ -81,6 +81,8 @@ defmodule VejperWeb.PostLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:uploaded_files, [])
+     |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
      |> assign(:images, post.images)
      |> assign_form(changeset)}
   end
@@ -141,14 +143,7 @@ defmodule VejperWeb.PostLive.FormComponent do
   #  end
 
   defp save_post(socket, :new, post_params) do
-    post_params =
-      Map.put(
-        post_params,
-        "images",
-        Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
-      )
-
-    case Social.create_post(socket.assigns.current_user, post_params) do
+    case Social.create_post(socket.assigns.current_user, post_params, handle_images(socket)) do
       {:ok, _post} ->
         {:noreply,
          socket
@@ -162,18 +157,7 @@ defmodule VejperWeb.PostLive.FormComponent do
 
   defp handle_images(socket) do
     consume_uploaded_entries(socket, :images, fn %{path: path}, _entry ->
-      dest =
-        Path.join([
-          File.cwd!(),
-          "priv",
-          "static",
-          "social",
-          Integer.to_string(socket.assigns.current_user.id) <> Path.basename(path)
-        ])
-
-      File.cp!(path, dest)
-
-      {:ok, ~p"/social/#{Path.basename(dest)}"}
+      Cloudex.upload(path)
     end)
   end
 

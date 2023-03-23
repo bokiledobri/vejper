@@ -3,6 +3,20 @@
     class="chat-rooms-section absolute z-10 cursor-pointer top-5 left-5 w-8 h-8 md:hidden"
     phx-click={JS.toggle(to: ".chat-rooms-section")}
   />
+  <div :if={banned?(@current_user)} class="fixed z-50 p-5 inset-[20%] bg-white dark:bg-black">
+    Vaš nalog je suspendovan sa ćaskanja do <%= c =
+      @current_user.chat_banned_until
+      |> DateTime.from_naive!("Europe/Belgrade")
+
+    c = DateTime.add(c, c.std_offset)
+    c = DateTime.add(c, c.utc_offset)
+
+    d = DateTime.to_date(c)
+    t = DateTime.to_time(c)
+
+    "#{d.day}.#{d.month}.#{d.year} u #{t.hour} i " <>
+      if t.minute != 0, do: Integer.to_string(t.minute), else: "00" %>
+  </div>
   <section class="chat-rooms-section basis-full rounded  hidden md:block shrink grow h-[90vh] bg-zinc-50 dark:bg-zinc-900 px-2 mx-2">
     <ul id="chat-rooms" class="flex flex-col pr-2" phx-update="stream">
       <li
@@ -80,7 +94,7 @@
     </ul>
     <div class="w-full absolute bottom-0">
       <.awesome_input
-        show={true}
+        show={!banned?(@current_user)}
         form={@message_form}
         form_id="send-message-form"
         input_id="send-message-input"

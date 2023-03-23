@@ -7,9 +7,7 @@ defmodule VejperWeb.PostLive.Show do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:uploaded_files, [])
       |> assign_form(Social.change_comment(%Social.Comment{}, %{}))
-      |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
 
     {:ok, socket}
   end

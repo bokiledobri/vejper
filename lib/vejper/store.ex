@@ -132,7 +132,19 @@ defmodule Vejper.Store do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_ad(user_id, attrs \\ %{}, %Category{} = category) do
+  def create_ad(user_id, attrs \\ %{}, %Category{} = category, images) do
+    images =
+      Enum.map(images, fn img ->
+        %{
+          "url" => img.url,
+          "public_id" => img.public_id,
+          "width" => img.width,
+          "height" => img.height
+        }
+      end)
+
+    attrs = Map.put(attrs, "images", images)
+
     Vejper.Accounts.get_user!(user_id)
     |> Ecto.build_assoc(:ads)
     |> Ad.changeset(attrs, category)
@@ -152,7 +164,24 @@ defmodule Vejper.Store do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_ad(%Ad{} = ad, attrs, %Category{} = category) do
+  def update_ad(%Ad{} = ad, attrs, %Category{} = category, images) do
+    Enum.each(ad.images, fn img ->
+      if !Enum.any?(images, fn i -> i.public_id == img.public_id end),
+        do: Cloudex.delete(img.public_id)
+    end)
+
+    images =
+      Enum.map(images, fn img ->
+        %{
+          "url" => img.url,
+          "public_id" => img.public_id,
+          "width" => img.width,
+          "height" => img.height
+        }
+      end)
+
+    attrs = Map.put(attrs, "images", images)
+
     ad
     |> Ad.changeset(attrs, category)
     |> Repo.update()
@@ -173,6 +202,8 @@ defmodule Vejper.Store do
 
   """
   def delete_ad(%Ad{} = ad) do
+    Cloudex.delete(Enum.map(ad.images, fn %{public_id: id} -> id end))
+
     Repo.delete(ad)
     |> broadcast(:ad_deleted, :all)
     |> broadcast(:ad_deleted)

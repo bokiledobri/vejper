@@ -19,7 +19,7 @@ defmodule Vejper.MixProject do
   def application do
     [
       mod: {Vejper.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :cloudex]
     ]
   end
 
@@ -39,7 +39,7 @@ defmodule Vejper.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.16"},
+      {:phoenix_live_view, "~> 0.18.18"},
       {:heroicons, "~> 0.5"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.7.2"},
@@ -53,9 +53,10 @@ defmodule Vejper.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:hackney, "~> 1.18"},
-      {:tzdata, "~> 1.1"},
+      {:tz, "~> 0.24.0"},
       {:faker, "~> 0.17", only: [:dev, :test]},
-      {:paginator, "~> 1.2.0"}
+      {:paginator, "~> 1.2.0"},
+      {:cloudex, "~> 1.3.0"}
     ]
   end
 

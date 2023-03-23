@@ -5,15 +5,82 @@
       src={@profile.profile_image_url}
       alt=""
     />
-    <h2 class="text-black dark:text-white text-[1.8rem] max-sm:text-[2.2rem] mx-2 font-bold">
-      <%= @profile.username %>
-    </h2>
+    <div class="flex flex-col">
+      <h2 class="text-black dark:text-white text-[1.8rem] max-sm:text-[2.2rem] mx-2 font-bold">
+        <%= @profile.username %>
+      </h2>
+      <%= if is_admin?(@current_user) do %>
+        <ul class="flex flex-col text-sm">
+          <li
+            :if={!Enum.any?(@profile.user.mods, fn m -> m == :chat end)}
+            phx-click="assign-mod"
+            phx-value-mod="chat"
+            class="p-1 rounded-full italic text-zinc-800 dark:text-zinc-200 cursor-pointer bg-zinc-200 dark:bg-zinc-800"
+          >
+            Moderator ćaskanja
+          </li>
+          <li
+            :if={Enum.any?(@profile.user.mods, fn m -> m == :chat end)}
+            phx-click="deassign-mod"
+            phx-value-mod="chat"
+            class="p-1 rounded-full cursor-pointer bg-green-500"
+          >
+            Moderator ćaskanja
+          </li>
+          <li
+            :if={!Enum.any?(@profile.user.mods, fn m -> m == :ads end)}
+            phx-click="assign-mod"
+            phx-value-mod="ads"
+            class="p-1 rounded-full italic text-zinc-800 dark:text-zinc-200 cursor-pointer bg-zinc-200 dark:bg-zinc-800"
+          >
+            Moderator oglasa
+          </li>
+          <li
+            :if={Enum.any?(@profile.user.mods, fn m -> m == :ads end)}
+            phx-click="deassign-mod"
+            phx-value-mod="ads"
+            class="p-1 rounded-full cursor-pointer bg-blue-500"
+          >
+            Moderator oglasa
+          </li>
+        </ul>
+      <% else %>
+        <ul class="flex flex-col text-sm">
+          <li :if={:chat in @profile.user.mods} class="p-1 rounded-full bg-green-500">
+            Moderator ćaskanja
+          </li>
+          <li :if={:ads in @profile.user.mods} class="p-1 rounded-full bg-blue-500">
+            Moderator oglasa
+          </li>
+        </ul>
+      <% end %>
+    </div>
   </div>
-  <%= if @profile.id == @current_user.profile.id do %>
-    <.link patch={~p"/profil/uredi"} phx-click={JS.push_focus()}>
-      <.button>Uredi</.button>
-    </.link>
-  <% end %>
+  <form :if={is_chat_mod?(@current_user)} phx-submit="ban-from-chat">
+    <.input
+      type="select"
+      name="hours"
+      value="0"
+      options={[{"1 sat", "1"}, {"1 dan", "24"}, {"7 dana", "168"}]}
+    />
+    <.button>Suspenduj sa ćaskanja</.button>
+  </form>
+  <form :if={is_store_mod?(@current_user)} phx-submit="ban-from-ads">
+    <.input
+      type="select"
+      name="hours"
+      value="0"
+      options={[{"1 sat", "1"}, {"1 dan", "24"}, {"7 dana", "168"}]}
+    />
+    <.button>Suspenduj sa oglasa</.button>
+  </form>
+  <.link
+    :if={is_owner?(@profile, @current_user)}
+    patch={~p"/profil/uredi"}
+    phx-click={JS.push_focus()}
+  >
+    <.button>Uredi</.button>
+  </.link>
 </header>
 
 <.list>
@@ -35,7 +102,5 @@
     profile={@profile}
     patch={~p"/profil/#{@profile}"}
     current_user={@current_user}
-    uploads={@uploads}
-    uploaded_files={@uploaded_files}
   />
 </.modal>

@@ -21,7 +21,7 @@ defmodule VejperWeb.Admin.FieldFormComponent do
         <.input field={@form[:name]} type="text" label="Naziv" />
         <.input field={@form[:type]} type="select" label="Tip" options={["text", "select", "number"]} />
         <.input
-          disabled={@form[:type].value != "select"}
+          :if={!(@form[:type].value != "select")}
           field={@form[:values]}
           type="text"
           label="Moguće vrednosti"

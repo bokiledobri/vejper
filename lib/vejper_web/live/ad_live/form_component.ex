@@ -8,7 +8,21 @@ defmodule VejperWeb.AdLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
+      <div :if={banned?(@current_user)} class="z-50 p-5 w-full h-full bg-white dark:bg-black">
+        Vaš nalog je suspendovan i ne možete postavljati oglase do <%= c =
+          @current_user.ads_banned_until |> DateTime.from_naive!("Europe/Belgrade")
+
+        c = DateTime.add(c, c.std_offset)
+        c = DateTime.add(c, c.utc_offset)
+
+        d = DateTime.to_date(c)
+        t = DateTime.to_time(c)
+
+        "#{d.day}.#{d.month}.#{d.year} u #{t.hour} i " <>
+          if t.minute != 0, do: Integer.to_string(t.minute), else: "00" %>
+      </div>
       <.simple_form
+        :if={!banned?(@current_user)}
         for={@form}
         id="ad-form"
         phx-target={@myself}
@@ -123,7 +137,8 @@ defmodule VejperWeb.AdLive.FormComponent do
     changeset = Store.change_ad(ad, category)
 
     socket =
-      socket
+      assign(socket, :uploaded_files, [])
+      |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
       |> assign(assigns)
       |> assign(:categories, categories)
       |> assign(:fields, fields)
@@ -171,21 +186,12 @@ defmodule VejperWeb.AdLive.FormComponent do
 
   defp save_ad(socket, :edit, ad_params, category) do
     if owner?(socket.assigns.ad, socket) do
-      old_images =
-        if socket.assigns.images,
-          do: Enum.map(socket.assigns.images, fn img -> %{"id" => img.id, "url" => img.url} end),
-          else: []
-
-      new_images = Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
-
-      ad_params =
-        Map.put(
-          ad_params,
-          "images",
-          Enum.concat(old_images, new_images)
-        )
-
-      case Store.update_ad(socket.assigns.ad, ad_params, category) do
+      case Store.update_ad(
+             socket.assigns.ad,
+             ad_params,
+             category,
+             Enum.concat(socket.assigns.images, handle_images(socket))
+           ) do
         {:ok, _ad} ->
           {:noreply,
            socket
@@ -201,14 +207,14 @@ defmodule VejperWeb.AdLive.FormComponent do
   end
 
   defp save_ad(socket, :new, ad_params, category) do
-    ad_params =
-      Map.put(
-        ad_params,
-        "images",
-        Enum.map(handle_images(socket), fn img -> %{"url" => img} end)
-      )
+    IO.puts("CALLED")
 
-    case Store.create_ad(socket.assigns.current_user.id, ad_params, category) do
+    case Store.create_ad(
+           socket.assigns.current_user.id,
+           ad_params,
+           category,
+           handle_images(socket)
+         ) do
       {:ok, _ad} ->
         {:noreply,
          socket
@@ -222,19 +228,16 @@ defmodule VejperWeb.AdLive.FormComponent do
 
   defp handle_images(socket) do
     consume_uploaded_entries(socket, :images, fn %{path: path}, _entry ->
-      dest =
-        Path.join([
-          File.cwd!(),
-          "priv",
-          "static",
-          "store",
-          Integer.to_string(socket.assigns.current_user.id) <> Path.basename(path)
-        ])
-
-      File.cp!(path, dest)
-
-      {:ok, ~p"/store/#{Path.basename(dest)}"}
+      Cloudex.upload(path)
     end)
+  end
+
+  defp banned?(%{ads_banned_until: nil}) do
+    false
+  end
+
+  defp banned?(%{ads_banned_until: ban_time}) do
+    NaiveDateTime.compare(NaiveDateTime.utc_now(), ban_time) == :lt
   end
 
   defp error_to_string(:too_large), do: "prevelike slike"

@@ -10,7 +10,7 @@ import Config
 config :vejper,
   ecto_repos: [Vejper.Repo]
 
-config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+config :elixir, :time_zone_database, Tz.TimeZoneDatabase
 
 # Configures the endpoint
 config :vejper, VejperWeb.Endpoint,
@@ -21,6 +21,11 @@ config :vejper, VejperWeb.Endpoint,
   ],
   pubsub_server: Vejper.PubSub,
   live_view: [signing_salt: "exddYNgO"]
+
+config :cloudex,
+  api_key: System.get_env("CLOUDINARY_API_KEY"),
+  secret: System.get_env("CLOUDINARY_SECRET"),
+  cloud_name: System.get_env("CLOUDINARY_NAME")
 
 # Configures the mailer
 #

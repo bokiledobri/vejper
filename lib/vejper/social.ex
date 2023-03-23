@@ -76,10 +76,27 @@ defmodule Vejper.Social do
     |> Repo.one!()
   end
 
-  def create_post(%Vejper.Accounts.User{} = user, attrs \\ %{}) do
-    case user
-         |> Ecto.build_assoc(:posts)
-         |> Post.changeset(attrs)
+  def create_post(%Vejper.Accounts.User{} = user, attrs \\ %{}, images) do
+    images =
+      Enum.map(images, fn img ->
+        %{
+          "url" => img.url,
+          "public_id" => img.public_id,
+          "width" => img.width,
+          "height" => img.height
+        }
+      end)
+
+    attrs = Map.put(attrs, "images", images)
+
+    changeset =
+      user
+      |> Ecto.build_assoc(:posts)
+      |> Post.changeset(attrs)
+
+    IO.inspect(changeset)
+
+    case changeset
          |> Repo.insert() do
       {:ok, post} ->
         get_post!(post.id)
@@ -130,6 +147,7 @@ defmodule Vejper.Social do
 
   """
   def delete_post(%Post{} = post) do
+    Cloudex.delete(Enum.map(post.images, fn %{public_id: id} -> id end))
     Repo.delete(post)
     broadcast(post, :post_deleted)
   end
