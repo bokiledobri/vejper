@@ -86,7 +86,8 @@ defmodule VejperWeb.ProfileLive.FormComponent do
   end
 
   defp save_profile(socket, :edit, profile_params) do
-    [img | _tail] = handle_image(socket)
+    images = handle_image(socket)
+    img = if images == [], do: Media.get_image!(1), else: Enum.at(images, 0)
 
     case Accounts.update_profile(
            socket.assigns.profile,
@@ -107,7 +108,8 @@ defmodule VejperWeb.ProfileLive.FormComponent do
   end
 
   defp save_profile(socket, :new, profile_params) do
-    [img | _tail] = handle_image(socket)
+    images = handle_image(socket)
+    img = if images == [], do: Media.get_image!(1), else: Enum.at(images, 0)
 
     case Accounts.create_profile(socket.assigns.current_user, profile_params, img) do
       {:ok, profile} ->
@@ -131,7 +133,7 @@ defmodule VejperWeb.ProfileLive.FormComponent do
         if socket.assigns.current_user.profile do
           [socket.assigns.current_user.profile.image]
         else
-          [%{id: 1, url: "/images/default_avatar.jpg"}]
+          []
         end
 
       rest ->
