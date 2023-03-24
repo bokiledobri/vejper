@@ -22,12 +22,12 @@ defmodule VejperWeb.Router do
 
     live_session :mount_current_user,
       on_mount: {VejperWeb.UserAuth, :mount_current_user} do
+      live "/", HomeLive.Index, :index
       live "/objave", PostLive.Index, :index
       live "/objava/:id", PostLive.Show, :show
 
       live "/oglasi", AdLive.Index, :index
       live "/oglas/:id", AdLive.Show, :show
-      get "/", PageController, :home
     end
   end
 
@@ -94,8 +94,6 @@ defmodule VejperWeb.Router do
       ] do
       live "/profil/uredi", ProfileLive.Show, :edit
       live "/objave/nova", PostLive.Index, :new
-      #      live "/posts/:id/edit", PostLive.Index, :edit
-      #      live "/posts/show/:id/edit", PostLive.Show, :edit
       live "/caskanje", ChatLive.Index, :index
       live "/caskanje/nova_soba", ChatLive.Index, :new
       live "/caskanje/sobe/:id/uredi", ChatLive.Index, :edit
