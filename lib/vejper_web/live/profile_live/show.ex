@@ -10,10 +10,14 @@ defmodule VejperWeb.ProfileLive.Show do
   @impl true
   def handle_params(%{"id" => id}, _session, socket) do
     profile = Accounts.get_profile!(id)
+    chat_bans = Accounts.list_bans_by_user_and_type(id, "chat")
+    store_bans = Accounts.list_bans_by_user_and_type(id, "store")
 
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
+     |> assign(:chat_bans, chat_bans)
+     |> assign(:store_bans, store_bans)
      |> assign(:profile, profile)}
   end
 
@@ -49,18 +53,56 @@ defmodule VejperWeb.ProfileLive.Show do
 
   @impl true
   def handle_event("ban-from-chat", %{"hours" => hours}, socket) do
-    if chat_mod?(socket) do
-      Accounts.ban_user_from_chat(socket.assigns.profile.user, String.to_integer(hours))
-    end
+    socket =
+      if chat_mod?(socket) do
+        Accounts.ban_user(
+          "chat",
+          String.to_integer(hours),
+          socket.assigns.profile.user,
+          socket.assigns.current_user
+        )
+
+        chat_bans = Accounts.list_bans_by_user_and_type(socket.assigns.profile.id, "chat")
+        assign(socket, :chat_bans, chat_bans)
+      else
+        socket
+      end
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("ban-from-ads", %{"hours" => hours}, socket) do
-    if store_mod?(socket) do
-      Accounts.ban_user_from_ads(socket.assigns.profile.user, String.to_integer(hours))
-    end
+  def handle_event("ban-from-store", %{"hours" => hours}, socket) do
+    socket =
+      if chat_mod?(socket) do
+        Accounts.ban_user(
+          "store",
+          String.to_integer(hours),
+          socket.assigns.profile.user,
+          socket.assigns.current_user
+        )
+
+        store_bans = Accounts.list_bans_by_user_and_type(socket.assigns.profile.id, "store")
+        assign(socket, :store_bans, store_bans)
+      else
+        socket
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete-ban", %{"id" => id}, socket) do
+    socket =
+      if chat_mod?(socket) do
+        Accounts.get_ban!(id)
+        |> Accounts.unban_user()
+
+        chat_bans = Accounts.list_bans_by_user_and_type(socket.assigns.profile.id, "chat")
+        assign(socket, :chat_bans, chat_bans)
+      else
+        socket
+      end
 
     {:noreply, socket}
   end

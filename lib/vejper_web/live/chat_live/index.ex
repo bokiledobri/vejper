@@ -1,5 +1,6 @@
 defmodule VejperWeb.ChatLive.Index do
   use VejperWeb, :live_view
+  alias Vejper.Accounts
   alias VejperWeb.Presence
   alias Vejper.Chat
   alias Vejper.Chat.{Message, Room}
@@ -13,6 +14,7 @@ defmodule VejperWeb.ChatLive.Index do
       assign(socket, :current_user, Vejper.Repo.preload(socket.assigns.current_user, :chat_room))
       |> assign(:room, nil)
       |> assign(:online_users, [])
+      |> assign(:banned, Accounts.banned?(socket.assigns.current_user.id, "chat"))
       |> assign(:rooms, rooms)
 
     {:ok, socket}
@@ -41,6 +43,10 @@ defmodule VejperWeb.ChatLive.Index do
         stream(socket, :messages, messages, dom_id: &"message-#{&1.id}")
         |> assign(:room, room)
         |> assign(:meta, meta)
+        |> assign(
+          :banned,
+          Accounts.banned?(socket.assigns.current_user.id, "chat")
+        )
         |> assign_form(:message_form, changeset)
       else
         socket
@@ -160,14 +166,6 @@ defmodule VejperWeb.ChatLive.Index do
 
   defp apply_action(socket, _action, _params) do
     socket
-  end
-
-  defp banned?(%{chat_banned_until: nil}) do
-    false
-  end
-
-  defp banned?(%{chat_banned_until: ban_time}) do
-    NaiveDateTime.compare(NaiveDateTime.utc_now(), ban_time) == :lt
   end
 
   defp assign_form(socket, form, %Ecto.Changeset{} = changeset) do

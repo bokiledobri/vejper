@@ -5,6 +5,7 @@ defmodule Vejper.Accounts do
 
   import Ecto.Query, warn: false
   alias Vejper.Repo
+  alias Vejper.Accounts.Ban
 
   alias Vejper.Accounts.{User, UserToken, UserNotifier}
 
@@ -44,22 +45,46 @@ defmodule Vejper.Accounts do
     if User.valid_password?(user, password), do: user
   end
 
-  def ban_user_from_chat(user, hours) do
+  def ban_user(type, hours, banned, by) do
     until =
       NaiveDateTime.add(NaiveDateTime.utc_now(), hours * 3600, :second)
       |> NaiveDateTime.truncate(:second)
 
-    User.ban_changeset(user, %{"chat_banned_until" => until})
-    |> Repo.update()
+    attrs = %{"type" => type, "until" => until}
+
+    from(b in Ban, where: b.until < ^NaiveDateTime.utc_now())
+    |> Repo.delete_all()
+
+    %Ban{}
+    |> Ban.changeset(attrs, banned, by)
+    |> Repo.insert()
   end
 
-  def ban_user_from_ads(user, hours) do
-    until =
-      NaiveDateTime.add(NaiveDateTime.utc_now(), hours * 3600, :second)
-      |> NaiveDateTime.truncate(:second)
+  def get_ban!(id) do
+    Repo.get!(Ban, id)
+  end
 
-    User.ban_changeset(user, %{"ads_banned_until" => until})
-    |> Repo.update()
+  def unban_user(%Ban{} = ban) do
+    Repo.delete(ban)
+  end
+
+  def list_bans_by_user_and_type(id, type) do
+    from(b in Ban,
+      where: b.banned_id == ^id,
+      where: b.type == ^type,
+      preload: [:banned, [by: :profile]]
+    )
+    |> Repo.all()
+  end
+
+  def banned?(id, type) do
+    from(b in Ban,
+      where: b.banned_id == ^id,
+      where: b.type == ^type,
+      where: b.until > ^NaiveDateTime.utc_now(),
+      preload: [:banned, [by: :profile]]
+    )
+    |> Repo.one()
   end
 
   def assign_mod(%User{} = user, mod) do
@@ -418,7 +443,10 @@ defmodule Vejper.Accounts do
 
   """
   def get_profile!(id),
-    do: Repo.get!(Profile, id) |> Profile.get_profile_age() |> Repo.preload([:user, :image])
+    do:
+      Repo.get!(Profile, id)
+      |> Profile.get_profile_age()
+      |> Repo.preload([:user, :image])
 
   def get_profile_by_user(user) do
     user = Repo.preload(user, [:profile, [:image]])

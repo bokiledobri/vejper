@@ -10,7 +10,7 @@
         <%= @profile.username %>
       </h2>
       <%= if is_admin?(@current_user) do %>
-        <ul class="flex flex-col text-sm">
+        <ul class="flex flex-col gap-1 text-sm">
           <li
             :if={!Enum.any?(@profile.user.mods, fn m -> m == :chat end)}
             phx-click="assign-mod"
@@ -45,35 +45,87 @@
           </li>
         </ul>
       <% else %>
-        <ul class="flex flex-col text-sm">
-          <li :if={:chat in @profile.user.mods} class="p-1 rounded-full bg-green-500">
+        <ul class="flex flex-col gap-1 text-sm">
+          <li
+            :if={:chat in @profile.user.mods}
+            class="p-1 rounded-full bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200"
+          >
             Moderator ćaskanja
           </li>
-          <li :if={:ads in @profile.user.mods} class="p-1 rounded-full bg-blue-500">
+          <li
+            :if={:ads in @profile.user.mods}
+            class="p-1 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200"
+          >
             Moderator oglasa
           </li>
         </ul>
       <% end %>
     </div>
   </div>
-  <form :if={is_chat_mod?(@current_user)} phx-submit="ban-from-chat">
-    <.input
-      type="select"
-      name="hours"
-      value="0"
-      options={[{"1 sat", "1"}, {"1 dan", "24"}, {"7 dana", "168"}]}
-    />
-    <.button>Suspenduj sa ćaskanja</.button>
-  </form>
-  <form :if={is_store_mod?(@current_user)} phx-submit="ban-from-ads">
-    <.input
-      type="select"
-      name="hours"
-      value="0"
-      options={[{"1 sat", "1"}, {"1 dan", "24"}, {"7 dana", "168"}]}
-    />
-    <.button>Suspenduj sa oglasa</.button>
-  </form>
+  <div :if={is_chat_mod?(@current_user)}>
+    <%= if Enum.count(@chat_bans) > 0 do %>
+      <div :for={ban <- @chat_bans}>
+        Korisnik je suspendovan sa ćaskanja od strane
+        <%= if ban.by.id == @current_user.id do %>
+          Vas
+        <% else %>
+          <.link navigate={~p"/profil/#{ban.by.profile.id}"} class="font-bold">
+            <%= ban.by.profile.username %>
+          </.link>
+        <% end %>
+        do <%= humanize_datetime(ban.until) %>
+        <.button
+          :if={ban.by.id == @current_user.id || is_admin?(@current_user)}
+          phx-click="delete-ban"
+          phx-value-id={ban.id}
+        >
+          Ukloni
+        </.button>
+      </div>
+    <% else %>
+      <form phx-submit="ban-from-chat">
+        <.input
+          type="select"
+          name="hours"
+          value="0"
+          options={[{"1 sat", "1"}, {"1 dan", "24"}, {"7 dana", "168"}]}
+        />
+        <.button>Suspenduj sa ćaskanja</.button>
+      </form>
+    <% end %>
+  </div>
+  <div :if={is_store_mod?(@current_user)}>
+    <%= if Enum.count(@store_bans) > 0 do %>
+      <div :for={ban <- @store_bans}>
+        Korisnik je suspendovan sa ćaskanja od strane
+        <%= if ban.by.id == @current_user.id do %>
+          Vas
+        <% else %>
+          <.link navigate={~p"/profil/#{ban.by.profile.id}"} class="font-bold">
+            <%= ban.by.profile.username %>
+          </.link>
+        <% end %>
+        do <%= humanize_datetime(ban.until) %>
+        <.button
+          :if={ban.by.id == @current_user.id || is_admin?(@current_user)}
+          phx-click="delete-ban"
+          phx-value-id={ban.id}
+        >
+          Ukloni
+        </.button>
+      </div>
+    <% else %>
+      <form phx-submit="ban-from-store">
+        <.input
+          type="select"
+          name="hours"
+          value="0"
+          options={[{"1 sat", "1"}, {"1 dan", "24"}, {"7 dana", "168"}]}
+        />
+        <.button>Suspenduj sa oglasa</.button>
+      </form>
+    <% end %>
+  </div>
   <.link
     :if={is_owner?(@profile, @current_user)}
     patch={~p"/profil/uredi"}

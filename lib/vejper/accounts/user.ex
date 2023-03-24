@@ -9,11 +9,7 @@ defmodule Vejper.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
 
-    field :chat_banned_until, :naive_datetime,
-      default: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
-
-    field :ads_banned_until, :naive_datetime,
-      default: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    has_many :bans, Vejper.Accounts.Ban, foreign_key: :banned, on_replace: :delete
 
     field :mods, {:array, Ecto.Enum}, values: [:chat, :ads, :social], default: []
     has_one :profile, Vejper.Accounts.Profile, on_replace: :delete
@@ -23,11 +19,6 @@ defmodule Vejper.Accounts.User do
     many_to_many :chat_rooms, Vejper.Chat.Room, join_through: "users_chat_rooms"
 
     timestamps()
-  end
-
-  def ban_changeset(user, attrs) do
-    user
-    |> cast(attrs, [:chat_banned_until, :ads_banned_until])
   end
 
   @doc """

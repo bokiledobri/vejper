@@ -1,6 +1,7 @@
 defmodule VejperWeb.AdLive.FormComponent do
   use VejperWeb, :live_component
 
+  alias Vejper.Accounts
   alias Vejper.Media
   alias Vejper.Store.Category
   alias Vejper.Store
@@ -9,21 +10,15 @@ defmodule VejperWeb.AdLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <div :if={banned?(@current_user)} class="z-50 p-5 w-full h-full bg-white dark:bg-black">
-        Vaš nalog je suspendovan i ne možete postavljati oglase do <%= c =
-          @current_user.ads_banned_until |> DateTime.from_naive!("Europe/Belgrade")
-
-        c = DateTime.add(c, c.std_offset)
-        c = DateTime.add(c, c.utc_offset)
-
-        d = DateTime.to_date(c)
-        t = DateTime.to_time(c)
-
-        "#{d.day}.#{d.month}.#{d.year} u #{t.hour} i " <>
-          if t.minute != 0, do: Integer.to_string(t.minute), else: "00" %>
+      <div :if={@banned} class="z-50 p-5 w-full h-full bg-white dark:bg-black">
+        Vaš nalog je suspendovan od strane
+        <.link navigate={~p"/profil/#{@banned.by.profile.id}"} class="font-bold">
+          <%= @banned.by.profile.username %>
+        </.link>
+        i ne možete postavljati oglase do <%= humanize_datetime(@banned.until) %>
       </div>
       <.simple_form
-        :if={!banned?(@current_user)}
+        :if={!@banned}
         for={@form}
         id="ad-form"
         phx-target={@myself}
@@ -143,6 +138,7 @@ defmodule VejperWeb.AdLive.FormComponent do
       |> assign(assigns)
       |> assign(:categories, categories)
       |> assign(:fields, fields)
+      |> assign(:banned, Accounts.banned?(assigns.current_user.id, "store"))
       |> assign_form(changeset)
 
     {:ok, socket}
@@ -229,10 +225,6 @@ defmodule VejperWeb.AdLive.FormComponent do
     consume_uploaded_entries(socket, :images, fn %{path: path}, _entry ->
       Media.upload_image(path)
     end)
-  end
-
-  defp banned?(%{ads_banned_until: nil}) do
-    false
   end
 
   defp banned?(%{ads_banned_until: ban_time}) do
