@@ -7,7 +7,11 @@ defmodule VejperWeb.ChatLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    if connected?(socket), do: Chat.subscribe()
+    if connected?(socket) do
+      Chat.subscribe()
+      Accounts.subscribe("chat", socket.assigns.current_user.id)
+    end
+
     rooms = Chat.list_rooms()
 
     socket =
@@ -67,16 +71,20 @@ defmodule VejperWeb.ChatLive.Index do
 
   @impl true
   def handle_event("save", %{"message" => message_params}, socket) do
-    case Chat.create_message(socket.assigns.room, socket.assigns.current_user, message_params) do
-      {:ok, _comment} ->
-        socket =
-          socket
-          |> push_event("clear-input", %{id: "send-message-input"})
+    if !socket.assigns.banned do
+      case Chat.create_message(socket.assigns.room, socket.assigns.current_user, message_params) do
+        {:ok, _comment} ->
+          socket =
+            socket
+            |> push_event("clear-input", %{id: "send-message-input"})
 
-        {:noreply, socket}
+          {:noreply, socket}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign_form(socket, :message_form, changeset)}
+        {:error, %Ecto.Changeset{} = changeset} ->
+          {:noreply, assign_form(socket, :message_form, changeset)}
+      end
+    else
+      {:noreply, socket}
     end
   end
 
@@ -84,7 +92,7 @@ defmodule VejperWeb.ChatLive.Index do
   def handle_event("delete-message", %{"message" => message_id}, socket) do
     message = Chat.get_message!(message_id)
 
-    if owner?(message, socket) do
+    if owner?(message, socket) || !socket.assigns.banned do
       Chat.delete_message(message)
     end
 
@@ -150,6 +158,24 @@ defmodule VejperWeb.ChatLive.Index do
       end)
 
     {:noreply, assign(socket, :rooms, rooms)}
+  end
+
+  @impl true
+  def handle_info({:banned, _}, socket) do
+    socket =
+      socket
+      |> assign(:banned, Accounts.banned?(socket.assigns.current_user.id, "chat"))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:unbanned, _}, socket) do
+    socket =
+      socket
+      |> assign(:banned, Accounts.banned?(socket.assigns.current_user.id, "chat"))
+
+    {:noreply, socket}
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do

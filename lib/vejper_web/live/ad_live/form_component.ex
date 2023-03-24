@@ -177,8 +177,12 @@ defmodule VejperWeb.AdLive.FormComponent do
   end
 
   def handle_event("save", %{"ad" => ad_params}, socket) do
-    category = Store.get_category!(ad_params["category_id"])
-    save_ad(socket, socket.assigns.action, ad_params, category)
+    if !socket.assigns.banned do
+      category = Store.get_category!(ad_params["category_id"])
+      save_ad(socket, socket.assigns.action, ad_params, category)
+    else
+      {:noreply, socket}
+    end
   end
 
   defp save_ad(socket, :edit, ad_params, category) do
@@ -225,10 +229,6 @@ defmodule VejperWeb.AdLive.FormComponent do
     consume_uploaded_entries(socket, :images, fn %{path: path}, _entry ->
       Media.upload_image(path)
     end)
-  end
-
-  defp banned?(%{ads_banned_until: ban_time}) do
-    NaiveDateTime.compare(NaiveDateTime.utc_now(), ban_time) == :lt
   end
 
   defp error_to_string(:too_large), do: "prevelike slike"

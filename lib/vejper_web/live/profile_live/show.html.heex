@@ -63,25 +63,23 @@
     </div>
   </div>
   <div :if={is_chat_mod?(@current_user)}>
-    <%= if Enum.count(@chat_bans) > 0 do %>
-      <div :for={ban <- @chat_bans}>
-        Korisnik je suspendovan sa ćaskanja od strane
-        <%= if ban.by.id == @current_user.id do %>
-          Vas
-        <% else %>
-          <.link navigate={~p"/profil/#{ban.by.profile.id}"} class="font-bold">
-            <%= ban.by.profile.username %>
-          </.link>
-        <% end %>
-        do <%= humanize_datetime(ban.until) %>
-        <.button
-          :if={ban.by.id == @current_user.id || is_admin?(@current_user)}
-          phx-click="delete-ban"
-          phx-value-id={ban.id}
-        >
-          Ukloni
-        </.button>
-      </div>
+    <%= if @chat_ban do %>
+      Korisnik je suspendovan sa ćaskanja od strane
+      <%= if @chat_ban.by.id == @current_user.id do %>
+        Vas
+      <% else %>
+        <.link navigate={~p"/profil/#{@chat_ban.by.profile.id}"} class="font-bold">
+          <%= @chat_ban.by.profile.username %>
+        </.link>
+      <% end %>
+      do <%= humanize_datetime(@chat_ban.until) %>
+      <.button
+        :if={@chat_ban.by.id == @current_user.id || is_admin?(@current_user)}
+        phx-click="delete-ban"
+        phx-value-id={@chat_ban.id}
+      >
+        Ukloni
+      </.button>
     <% else %>
       <form phx-submit="ban-from-chat">
         <.input
@@ -95,25 +93,23 @@
     <% end %>
   </div>
   <div :if={is_store_mod?(@current_user)}>
-    <%= if Enum.count(@store_bans) > 0 do %>
-      <div :for={ban <- @store_bans}>
-        Korisnik je suspendovan sa ćaskanja od strane
-        <%= if ban.by.id == @current_user.id do %>
-          Vas
-        <% else %>
-          <.link navigate={~p"/profil/#{ban.by.profile.id}"} class="font-bold">
-            <%= ban.by.profile.username %>
-          </.link>
-        <% end %>
-        do <%= humanize_datetime(ban.until) %>
-        <.button
-          :if={ban.by.id == @current_user.id || is_admin?(@current_user)}
-          phx-click="delete-ban"
-          phx-value-id={ban.id}
-        >
-          Ukloni
-        </.button>
-      </div>
+    <%= if @store_ban do %>
+      Korisnik je suspendovan sa oglasa od strane
+      <%= if @store_ban.by.id == @current_user.id do %>
+        Vas
+      <% else %>
+        <.link navigate={~p"/profil/#{@store_ban.by.profile.id}"} class="font-bold">
+          <%= @store_ban.by.profile.username %>
+        </.link>
+      <% end %>
+      do <%= humanize_datetime(@store_ban.until) %>
+      <.button
+        :if={@store_ban.by.id == @current_user.id || is_admin?(@current_user)}
+        phx-click="delete-ban"
+        phx-value-id={@store_ban.id}
+      >
+        Ukloni
+      </.button>
     <% else %>
       <form phx-submit="ban-from-store">
         <.input

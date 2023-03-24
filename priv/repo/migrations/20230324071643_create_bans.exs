@@ -13,5 +13,6 @@ defmodule Vejper.Repo.Migrations.CreateBans do
 
     create index(:bans, [:banned_id])
     create index(:bans, [:by_id])
+    create unique_index(:bans, [:banned_id, :type])
   end
 end

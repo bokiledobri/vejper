@@ -58,6 +58,7 @@ defmodule Vejper.Accounts do
     %Ban{}
     |> Ban.changeset(attrs, banned, by)
     |> Repo.insert()
+    |> broadcast("chat", :banned)
   end
 
   def get_ban!(id) do
@@ -66,6 +67,7 @@ defmodule Vejper.Accounts do
 
   def unban_user(%Ban{} = ban) do
     Repo.delete(ban)
+    broadcast({:ok, ban}, "chat", :unbanned)
   end
 
   def list_bans_by_user_and_type(id, type) do
@@ -520,5 +522,39 @@ defmodule Vejper.Accounts do
   """
   def change_profile(%Profile{} = profile, attrs \\ %{}) do
     Profile.changeset(profile, attrs, nil)
+  end
+
+  def subscribe(sub, id) when is_integer(id) do
+    Phoenix.PubSub.subscribe(Vejper.PubSub, "user-" <> sub <> "-" <> Integer.to_string(id))
+  end
+
+  def subscribe(sub, id) when is_bitstring(id) do
+    Phoenix.PubSub.subscribe(Vejper.PubSub, "user-" <> sub <> "-" <> id)
+  end
+
+  def subscribe() do
+    Phoenix.PubSub.subscribe(Vejper.PubSub, "users")
+  end
+
+  defp broadcast({:error, _} = error, _, _), do: error
+
+  defp broadcast({:ok, %User{} = user} = return, sub, event) do
+    Phoenix.PubSub.broadcast(
+      Vejper.PubSub,
+      "user-" <> sub <> "-" <> Integer.to_string(user.id),
+      {event, user}
+    )
+
+    return
+  end
+
+  defp broadcast({:ok, %Ban{} = ban} = return, sub, event) do
+    Phoenix.PubSub.broadcast(
+      Vejper.PubSub,
+      "user-" <> sub <> "-" <> Integer.to_string(ban.banned_id),
+      {event, ban}
+    )
+
+    return
   end
 end

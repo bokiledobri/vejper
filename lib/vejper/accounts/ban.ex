@@ -18,6 +18,7 @@ defmodule Vejper.Accounts.Ban do
     ban
     |> cast(attrs, [:until, :type])
     |> validate_required([:until, :type])
+    |> unique_constraint([:banned_id, :type])
     |> put_assoc(:banned, banned)
     |> put_assoc(:by, by)
   end

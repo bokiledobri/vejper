@@ -9,15 +9,16 @@ defmodule VejperWeb.ProfileLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _session, socket) do
+    if connected?(socket), do: Accounts.subscribe("chat", id)
     profile = Accounts.get_profile!(id)
-    chat_bans = Accounts.list_bans_by_user_and_type(id, "chat")
-    store_bans = Accounts.list_bans_by_user_and_type(id, "store")
+    chat_ban = Accounts.banned?(id, "chat")
+    store_ban = Accounts.banned?(id, "store")
 
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:chat_bans, chat_bans)
-     |> assign(:store_bans, store_bans)
+     |> assign(:chat_ban, chat_ban)
+     |> assign(:store_ban, store_ban)
      |> assign(:profile, profile)}
   end
 
@@ -62,8 +63,8 @@ defmodule VejperWeb.ProfileLive.Show do
           socket.assigns.current_user
         )
 
-        chat_bans = Accounts.list_bans_by_user_and_type(socket.assigns.profile.id, "chat")
-        assign(socket, :chat_bans, chat_bans)
+        chat_ban = Accounts.banned?(socket.assigns.profile.user.id, "chat")
+        assign(socket, :chat_ban, chat_ban)
       else
         socket
       end
@@ -82,8 +83,8 @@ defmodule VejperWeb.ProfileLive.Show do
           socket.assigns.current_user
         )
 
-        store_bans = Accounts.list_bans_by_user_and_type(socket.assigns.profile.id, "store")
-        assign(socket, :store_bans, store_bans)
+        store_ban = Accounts.banned?(socket.assigns.profile.user.id, "store")
+        assign(socket, :store_ban, store_ban)
       else
         socket
       end
@@ -98,11 +99,34 @@ defmodule VejperWeb.ProfileLive.Show do
         Accounts.get_ban!(id)
         |> Accounts.unban_user()
 
-        chat_bans = Accounts.list_bans_by_user_and_type(socket.assigns.profile.id, "chat")
-        assign(socket, :chat_bans, chat_bans)
+        ban = Accounts.banned?(socket.assigns.profile.user.id, "chat")
+        socket = assign(socket, :chat_ban, ban)
+        ban = Accounts.banned?(socket.assigns.profile.user.id, "store")
+        socket = assign(socket, :store_ban, ban)
+        socket
       else
         socket
       end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:banned, _}, socket) do
+    socket =
+      socket
+      |> assign(:chat_ban, Accounts.banned?(socket.assigns.profile.user.id, "chat"))
+      |> assign(:store_ban, Accounts.banned?(socket.assigns.profile.user.id, "store"))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:unbanned, _}, socket) do
+    socket =
+      socket
+      |> assign(:chat_ban, Accounts.banned?(socket.assigns.profile.user.id, "chat"))
+      |> assign(:store_ban, Accounts.banned?(socket.assigns.profile.user.id, "store"))
 
     {:noreply, socket}
   end
