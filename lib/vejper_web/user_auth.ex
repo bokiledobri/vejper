@@ -4,7 +4,6 @@ defmodule VejperWeb.UserAuth do
   import Plug.Conn
   import Phoenix.Controller
 
-  alias VejperWeb.Presence
   alias Vejper.Accounts
 
   # Make the remember me cookie valid for 60 days.
@@ -152,16 +151,16 @@ defmodule VejperWeb.UserAuth do
     socket = mount_current_user(session, socket)
 
     if socket.assigns.current_user do
-      {:ok, _} =
-        Presence.track(self(), "users", 1, %{
-          id: socket.assigns.current_user.id
-        })
+      # {:ok, _} =
+      # Presence.track(self(), "users", 1, %{
+      #  id: socket.assigns.current_user.id
+      # })
 
-      {_, %{metas: metas}} =
-        Presence.list("users")
-        |> Enum.at(0)
+      # {_, %{metas: metas}} =
+      # Presence.list("users")
+      #  |> Enum.at(0)
 
-      Vejper.Meta.create_user_count(%{"count" => Enum.count(metas)})
+      # Vejper.Meta.create_user_count(%{"count" => Enum.count(metas)})
       {:cont, socket}
     else
       socket =

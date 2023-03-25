@@ -20,6 +20,8 @@ defmodule VejperWeb.Router do
   scope "/", VejperWeb do
     pipe_through :browser
 
+    delete "/nalog/odjava", UserSessionController, :delete
+
     live_session :mount_current_user,
       on_mount: {VejperWeb.UserAuth, :mount_current_user} do
       live "/", HomeLive.Index, :index
@@ -28,6 +30,19 @@ defmodule VejperWeb.Router do
 
       live "/oglasi", AdLive.Index, :index
       live "/oglas/:id", AdLive.Show, :show
+      live "/profili/novi", ProfileLive.Index, :new
+      live "/profil/uredi", ProfileLive.Show, :edit
+      live "/objave/nova", PostLive.Index, :new
+      live "/caskanje", ChatLive.Index, :index
+      live "/caskanje/nova_soba", ChatLive.Index, :new
+      live "/caskanje/sobe/:id/uredi", ChatLive.Index, :edit
+      live "/caskanje/:id", ChatLive.Index, :show
+      live "/oglasi/novi", AdLive.Index, :new
+      live "/oglas/:id/uredi", AdLive.Show, :edit
+      live "/nalog/potvrda/:token", UserConfirmationLive, :edit
+      live "/nalog/potvrda/", UserConfirmationInstructionsLive, :new
+      live "/profili", ProfileLive.Index, :index
+      live "/profil/:id", ProfileLive.Show, :show
     end
   end
 
@@ -77,29 +92,8 @@ defmodule VejperWeb.Router do
         {VejperWeb.UserAuth, :ensure_authenticated},
         {VejperWeb.UserAuth, :mount_current_user}
       ] do
-      live "/profili/novi", ProfileLive.Index, :new
       live "/nalog/podesavanja/potvrda_adrese/:token", UserSettingsLive, :confirm_email
       live "/nalog/podesavanja", UserSettingsLive, :edit
-    end
-  end
-
-  scope "/", VejperWeb do
-    pipe_through [:browser, :require_authenticated_user, :require_user_profile]
-
-    live_session :require_user_profile,
-      on_mount: [
-        {VejperWeb.UserAuth, :ensure_authenticated},
-        {VejperWeb.UserAuth, :mount_current_user},
-        {VejperWeb.UserAuth, :ensure_profile_completed}
-      ] do
-      live "/profil/uredi", ProfileLive.Show, :edit
-      live "/objave/nova", PostLive.Index, :new
-      live "/caskanje", ChatLive.Index, :index
-      live "/caskanje/nova_soba", ChatLive.Index, :new
-      live "/caskanje/sobe/:id/uredi", ChatLive.Index, :edit
-      live "/caskanje/:id", ChatLive.Index, :show
-      live "/oglasi/novi", AdLive.Index, :new
-      live "/oglas/:id/uredi", AdLive.Show, :edit
     end
   end
 
@@ -119,20 +113,6 @@ defmodule VejperWeb.Router do
       live "/kategorija/:id/polje/:field_id/uredi", AdminLive.Category, :edit
       live "/kategorija/:id/uredi", AdminLive.Category, :edit
       live "/kategorije/nova", AdminLive.Index, :new
-    end
-  end
-
-  scope "/", VejperWeb do
-    pipe_through [:browser]
-
-    delete "/nalog/odjava", UserSessionController, :delete
-
-    live_session :current_user,
-      on_mount: [{VejperWeb.UserAuth, :mount_current_user}] do
-      live "/nalog/potvrda/:token", UserConfirmationLive, :edit
-      live "/nalog/potvrda/", UserConfirmationInstructionsLive, :new
-      live "/profili", ProfileLive.Index, :index
-      live "/profil/:id", ProfileLive.Show, :show
     end
   end
 end

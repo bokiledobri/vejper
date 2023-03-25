@@ -89,6 +89,7 @@ defmodule VejperWeb do
       import VejperWeb.DateTimeComponent
       import VejperWeb.Gettext
 
+      import VejperWeb.AuthorizationHelpers
       import VejperWeb.HtmlHelpers
 
       # Shortcut for generating JS commands

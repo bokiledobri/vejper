@@ -2,7 +2,7 @@ defmodule VejperWeb.AwesomeComponents do
   use Phoenix.Component
   import VejperWeb.CoreComponents
   alias Phoenix.LiveView.JS
-  import VejperWeb.DateTimeComponent
+  import VejperWeb.{DateTimeComponent, AuthorizationHelpers}
   attr :show, :any
   attr :form, :any, required: true
   attr :form_id, :string, required: true
@@ -62,7 +62,7 @@ defmodule VejperWeb.AwesomeComponents do
           <h4 class="text-[1rem] font-bold"><%= @item.user.profile.username %></h4>
         </.link>
         <.link
-          :if={@item.user_id == @current_user.id}
+          :if={is_owner?(@item, @current_user)}
           class="mx-5"
           phx-click={JS.push("delete", value: %{id: @item.id})}
           data-confirm="Da li ste sigurni?"

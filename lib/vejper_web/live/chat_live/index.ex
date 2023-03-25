@@ -4,7 +4,7 @@ defmodule VejperWeb.ChatLive.Index do
   alias VejperWeb.Presence
   alias Vejper.Chat
   alias Vejper.Chat.{Message, Room}
-
+  on_mount {VejperWeb.AuthorizationHelpers, :ensure_profile_completed}
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do

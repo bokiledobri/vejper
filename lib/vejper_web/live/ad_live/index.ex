@@ -4,6 +4,7 @@ defmodule VejperWeb.AdLive.Index do
   alias Vejper.Store.Query
   alias Vejper.Store
   alias Vejper.Store.Ad
+  on_mount {VejperWeb.AuthorizationHelpers, :ensure_profile_completed_for_mutating}
 
   @impl true
   def mount(_params, _session, socket) do

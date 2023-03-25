@@ -3,6 +3,7 @@ defmodule VejperWeb.PostLive.Index do
 
   alias Vejper.Social
   alias Vejper.Social.Post
+  on_mount {VejperWeb.AuthorizationHelpers, :ensure_profile_completed_for_mutating}
 
   @impl true
   def mount(_params, _session, socket) do

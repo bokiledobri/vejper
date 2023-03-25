@@ -32,6 +32,7 @@ defmodule VejperWeb.ProfileLive.Index do
 
   defp apply_action(socket, :new, _params) do
     socket
+    |> require_authenticated_user
     |> assign(:page_title, "Napravi profil")
     |> assign(:profile, %Profile{})
     |> assign(:uploaded_files, [])
