@@ -37,10 +37,6 @@ defmodule Vejper.Store.Ad do
 
   @doc false
   def changeset(ad, attrs, %Vejper.Store.Category{} = category, images) do
-    IO.inspect(%{"attrs[fields]" => attrs["fields"]})
-    IO.inspect(%{"category.fields" => category.fields})
-    IO.inspect(%{"ad.fields" => ad.fields})
-
     attrs =
       cond do
         Enum.count(category.fields) < Enum.count(attrs["fields"]) ->

@@ -1,33 +1,50 @@
 <.header>
-  <:actions>
-    <.link patch={~p"/admin/kategorije/nova"}>
-      <.button>Dodaj kategoriju</.button>
-    </.link>
-  </:actions>
+  <h1 class="font-bold text-3xl">Admin panel</h1>
 </.header>
-
-<.table
-  id="categories"
-  rows={@streams.categories}
-  row_click={fn {_id, category} -> JS.navigate(~p"/admin/kategorija/#{category}") end}
->
-  <:col :let={{_id, category}} label="Name"><%= category.name %></:col>
-  <:action :let={{_id, category}}>
-    <div class="sr-only">
-      <.link navigate={~p"/admin/kategorija/#{category}"}>Prikaži</.link>
-    </div>
-    <.link patch={~p"/admin/kategorija/#{category}/uredi"}>Uredi</.link>
-  </:action>
-  <:action :let={{id, category}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: category.id}) |> hide("##{id}")}
-      data-confirm="Da li ste sigurni?"
+<div class="flex flex-col mt-14 md:grid md:grid-cols-2 gap-10">
+  <section class="p-10 overflow-auto border-solid border-black dark:border-white border-2">
+    <header class="flex flex-row my-5 justify-between">
+      <h3 class="font-bold text-xl">Trenutno online</h3>
+    </header>
+    <.table
+      id="online-users"
+      rows={@online_users}
+      row_click={fn profile -> JS.navigate(~p"/profil/#{profile.id}") end}
     >
-      Obriši
-    </.link>
-  </:action>
-</.table>
-
+      <:col :let={profile} label="Korisničko ime"><%= profile.username %></:col>
+      <:col :let={profile} label="Slika">
+        <img src={profile.image.url} class="rounded-full w-10 h-10" />
+      </:col>
+      <:action :let={profile}>
+        <div class="sr-only">
+          <.link navigate={~p"/profil/#{profile.id}"}>
+            Prikaži
+          </.link>
+        </div>
+      </:action>
+    </.table>
+  </section>
+  <section class="p-10 overflow-auto border-solid border-2 border-black dark:border-white">
+    <header class="flex flex-row my-5 justify-between">
+      <h3 class="font-bold text-xl">Kategorije oglasa</h3>
+      <.link patch={~p"/admin/kategorije/nova"}>
+        <.button>Dodaj kategoriju</.button>
+      </.link>
+    </header>
+    <.table
+      id="categories"
+      rows={@streams.categories}
+      row_click={fn {_id, category} -> JS.navigate(~p"/admin/kategorija/#{category}") end}
+    >
+      <:col :let={{_id, category}} label="Naziv"><%= category.name %></:col>
+      <:action :let={{_id, category}}>
+        <div class="sr-only">
+          <.link navigate={~p"/admin/kategorija/#{category}"}>Prikaži</.link>
+        </div>
+      </:action>
+    </.table>
+  </section>
+</div>
 <.modal
   :if={@live_action in [:new, :edit]}
   id="category-modal"

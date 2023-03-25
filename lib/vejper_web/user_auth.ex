@@ -4,6 +4,7 @@ defmodule VejperWeb.UserAuth do
   import Plug.Conn
   import Phoenix.Controller
 
+  alias VejperWeb.Presence
   alias Vejper.Accounts
 
   # Make the remember me cookie valid for 60 days.
@@ -147,20 +148,8 @@ defmodule VejperWeb.UserAuth do
     {:cont, mount_current_user(session, socket)}
   end
 
-  def on_mount(:ensure_authenticated, _params, session, socket) do
-    socket = mount_current_user(session, socket)
-
+  def on_mount(:ensure_authenticated, _params, _session, socket) do
     if socket.assigns.current_user do
-      # {:ok, _} =
-      # Presence.track(self(), "users", 1, %{
-      #  id: socket.assigns.current_user.id
-      # })
-
-      # {_, %{metas: metas}} =
-      # Presence.list("users")
-      #  |> Enum.at(0)
-
-      # Vejper.Meta.create_user_count(%{"count" => Enum.count(metas)})
       {:cont, socket}
     else
       socket =
@@ -175,9 +164,7 @@ defmodule VejperWeb.UserAuth do
     end
   end
 
-  def on_mount(:ensure_profile_completed, _params, session, socket) do
-    socket = mount_current_user(session, socket)
-
+  def on_mount(:ensure_profile_completed, _params, _session, socket) do
     if socket.assigns.current_user.profile do
       {:cont, socket}
     else
@@ -193,9 +180,7 @@ defmodule VejperWeb.UserAuth do
     end
   end
 
-  def on_mount(:ensure_admin, _params, session, socket) do
-    socket = mount_current_user(session, socket)
-
+  def on_mount(:ensure_admin, _params, _session, socket) do
     if socket.assigns.current_user.role == :admin do
       {:cont, socket}
     else
@@ -222,13 +207,25 @@ defmodule VejperWeb.UserAuth do
   end
 
   defp mount_current_user(session, socket) do
-    Phoenix.Component.assign_new(socket, :current_user, fn ->
-      if user_token = session["user_token"] do
-        Accounts.get_user_by_session_token(user_token)
-      else
-        nil
-      end
-    end)
+    socket =
+      Phoenix.Component.assign_new(socket, :current_user, fn ->
+        if user_token = session["user_token"] do
+          Accounts.get_user_by_session_token(user_token)
+        else
+          nil
+        end
+      end)
+
+    profile_id =
+      if socket.assigns.current_user && socket.assigns.current_user.profile &&
+           socket.assigns.current_user.profile.id,
+         do: socket.assigns.current_user.profile.id,
+         else: nil
+
+    with {:ok, _} <- Presence.track(self(), "users", 1, %{id: profile_id}),
+         do: Phoenix.PubSub.broadcast(Vejper.PubSub, "admin", :online_users_updated)
+
+    socket
   end
 
   @doc """
