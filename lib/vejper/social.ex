@@ -19,11 +19,13 @@ defmodule Vejper.Social do
       [%Post{}, ...]
 
   """
-  def list_posts(cursor \\ {NaiveDateTime.utc_now(), 5}) do
+  def list_posts(cursor \\ {NaiveDateTime.utc_now(), 5}, id \\ nil) do
     {last_insert, limit} = cursor
 
+    q = if id, do: from(p in Post, where: p.user_id == ^id), else: Post
+
     posts =
-      from(p in Post,
+      from(p in q,
         preload: [:images, [user: [profile: :image]]],
         order_by: [desc: :inserted_at],
         order_by: [desc: :id],

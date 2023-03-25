@@ -62,6 +62,15 @@
       <% end %>
     </div>
   </div>
+  <.link
+    :if={@profile.user_id == @current_user.id}
+    patch={~p"/profil/uredi"}
+    phx-click={JS.push_focus()}
+  >
+    <.button>Uredi</.button>
+  </.link>
+</header>
+<div class="mod-actions w-full bg-zinc-200 dark:bg-zinc-800 p-3 flex flex-col gap-6">
   <div :if={is_chat_mod?(@current_user)}>
     <%= if @chat_ban do %>
       Korisnik je suspendovan sa ćaskanja od strane
@@ -122,19 +131,37 @@
       </form>
     <% end %>
   </div>
-  <.link
-    :if={@profile.user_id == @current_user.id}
-    patch={~p"/profil/uredi"}
-    phx-click={JS.push_focus()}
+</div>
+<div class="flex flex-col md:grid md:grid-cols-4">
+  <.list>
+    <:item title="Grad"><%= @profile.city %></:item>
+  </.list>
+  <ul
+    class="flex flex-col mt-10 gap-10 justify-center items-center md:col-span-3"
+    phx-update="stream"
+    phx-hook="InfiniteScroll"
+    id="home-list"
   >
-    <.button>Uredi</.button>
-  </.link>
-</header>
-
-<.list>
-  <:item title="Grad"><%= @profile.city %></:item>
-  <:item title="Godina"><%= @profile.age %></:item>
-</.list>
+    <%= for {dom_id, item} <- @streams.items do %>
+      <.ad_item
+        :if={!is_post(item)}
+        user_link={~p"/profil/#{item.user.profile.id}"}
+        ad_link={~p"/oglas/#{item.id}"}
+        item={item}
+        id={dom_id}
+        current_user={@current_user}
+      />
+      <.post_item
+        :if={is_post(item)}
+        user_link={~p"/profil/#{item.user.profile.id}"}
+        post_link={~p"/objava/#{item.id}"}
+        item={item}
+        id={dom_id}
+        current_user={@current_user}
+      />
+    <% end %>
+  </ul>
+</div>
 
 <.modal
   :if={@live_action == :edit}

@@ -95,8 +95,9 @@ defmodule Vejper.Store do
     )
   end
 
-  def list_ads(meta, _params) do
+  def list_ads(meta, _params, id \\ nil) do
     store_query = store_ads_query()
+    store_query = if id, do: from(p in store_query, where: p.user_id == ^id), else: store_query
 
     from(a in store_query,
       order_by: [desc: :inserted_at, desc: :id]

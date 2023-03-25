@@ -1,6 +1,6 @@
 defmodule VejperWeb.ProfileLive.Show do
   use VejperWeb, :live_view
-  alias Vejper.Accounts
+  alias Vejper.{Accounts, Social, Store}
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
@@ -13,13 +13,26 @@ defmodule VejperWeb.ProfileLive.Show do
     profile = Accounts.get_profile!(id)
     chat_ban = Accounts.banned?(id, "chat")
     store_ban = Accounts.banned?(id, "store")
+    %{entries: posts, meta: social_meta} = Social.list_posts({NaiveDateTime.utc_now(), 5}, id)
+    %{entries: ads, metadata: store_meta} = Store.list_ads(nil, %{}, id)
 
-    {:noreply,
-     socket
-     |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:chat_ban, chat_ban)
-     |> assign(:store_ban, store_ban)
-     |> assign(:profile, profile)}
+    items =
+      Enum.concat(posts, ads)
+      |> Enum.sort(fn %{updated_at: u}, %{updated_at: i} -> i < u end)
+
+    socket =
+      socket
+      |> stream(:items, items,
+        dom_id: fn item -> if is_post(item), do: "post-#{item.id}", else: "oglas-#{item.id}" end
+      )
+      |> assign(:social_meta, social_meta)
+      |> assign(:store_meta, store_meta)
+      |> assign(:page_title, page_title(socket.assigns.live_action))
+      |> assign(:chat_ban, chat_ban)
+      |> assign(:store_ban, store_ban)
+      |> assign(:profile, profile)
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -40,6 +53,25 @@ defmodule VejperWeb.ProfileLive.Show do
 
     user = Accounts.get_user!(socket.assigns.profile.user.id)
     {:noreply, assign(socket, :profile, Map.put(socket.assigns.profile, :user, user))}
+  end
+
+  def handle_event("load-more", _params, socket) do
+    %{entries: posts, meta: social_meta} =
+      Social.list_posts(socket.assigns.social_meta, socket.assigns.profile.id)
+
+    %{entries: ads, metadata: store_meta} =
+      Store.list_ads(socket.assigns.store_meta.after, %{}, socket.assigns.profile.id)
+
+    items =
+      Enum.concat(posts, ads)
+      |> Enum.sort(fn %{updated_at: u}, %{updated_at: i} -> i < u end)
+
+    socket =
+      Enum.reduce(items, socket, fn item, socket -> stream_insert(socket, :items, item) end)
+      |> assign(:social_meta, social_meta)
+      |> assign(:store_meta, store_meta)
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -129,6 +161,14 @@ defmodule VejperWeb.ProfileLive.Show do
       |> assign(:store_ban, Accounts.banned?(socket.assigns.profile.user.id, "store"))
 
     {:noreply, socket}
+  end
+
+  def is_post(%Social.Post{}) do
+    true
+  end
+
+  def is_post(_) do
+    false
   end
 
   defp page_title(:show), do: "Prikaži profil"
