@@ -25,13 +25,7 @@ defmodule VejperWeb.AdLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input
-          field={@form[:category_id]}
-          type="select"
-          phx-change="validate"
-          options={@categories}
-          label="Kategorija"
-        />
+        <.input field={@form[:category_id]} type="select" options={@categories} label="Kategorija" />
         <.inputs_for :let={field} field={@form[:fields]}>
           <.input
             field={field[:value]}
