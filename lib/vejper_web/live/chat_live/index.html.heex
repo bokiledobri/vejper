@@ -44,10 +44,10 @@
   </section>
   <section
     :if={@live_action == :show}
-    class="chat-rooms-section md:block h-[90vh] shrink-0 grow basis-[80%] flex relative mx-2 px-2"
+    class="chat-rooms-section max-w-full h-[90vh] shrink-0 grow-0  basis-full md:basis-[60%] flex relative mx-2 px-2"
   >
     <ul
-      class="mt-16 md:mt-2 flex flex-col-reverse gap-2 overflow-auto h-[90%] pb-6 basis-full items-start"
+      class="mt-16 md:mt-2 flex flex-col-reverse gap-2 overflow-auto h-[90%] pb-6 basis-full items-start max-w-full"
       id="chat-messages"
       phx-hook="MessagesInfiniteScroll"
       phx-update="stream"
@@ -55,20 +55,23 @@
       <li
         :for={{dom_id, message} <- @streams.messages}
         id={dom_id}
-        class={"rounded-full p-2 pr-20 items-center bg-zinc-100 relative dark:bg-zinc-800 flex mb-6"<> if message.user_id == @current_user.id, do: " self-end bg-zinc-300 dark:bg-zinc-700 mr-10", else: ""}
+        class={"rounded p-2 pr-20 items-center bg-zinc-100 relative dark:bg-zinc-800 max-w-sm flex mb-6 grow-0"<> if message.user_id == @current_user.id, do: " self-end bg-zinc-300 dark:bg-zinc-700 mr-10", else: ""}
       >
-        <.link navigate={~p"/profil/#{message.user.profile.id}"} class="shrink-0">
+        <.link navigate={~p"/profil/#{message.user.profile.id}"} class="shrink-0 self-start">
           <img
             src={message.user.profile.image.url}
             class="rounded-full w-10 h-10"
             alt={message.user.profile.username}
           />
         </.link>
-        <div class="flex flex-col items-start p-1 basis-full">
+        <div class="flex flex-col items-start p-1 basis-full grow-0">
           <.link navigate={~p"/profil/#{message.user.profile.id}"}>
             <h5 class="font-bold"><%= message.user.profile.username %></h5>
           </.link>
-          <p class={if message.state == "deleted", do: "text-zinc-500 italic", else: ""}>
+          <p class={
+            "max-w-xs basis-3/4 grow-0 break-words"<>
+            if message.state == "deleted", do: " text-zinc-500 italic w-full", else: ""
+          }>
             <%= if message.state == "deleted", do: "Poruka obrisana", else: message.body %>
           </p>
         </div>
