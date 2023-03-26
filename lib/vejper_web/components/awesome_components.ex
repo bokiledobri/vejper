@@ -152,7 +152,10 @@ defmodule VejperWeb.AwesomeComponents do
     ~H"""
     <.link
       navigate={@href}
-      class={"hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded text-[1.2rem] leading-6 text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-300 font-semibold hover:text-zinc-700 basis-full text-center" <> if @added_class != "", do: " " <> @added_class, else: ""}
+      class={"hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 pt-4 rounded-t-md text-lg relative top-[2px]
+      hover:border-zinc-500 border-solid hover:border-b-2
+      leading-6 text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-300
+      font-semibold hover:text-zinc-700 basis-full text-center" <> if @added_class != "", do: " " <> @added_class, else: ""}
       method={@method}
     >
       <%= render_slot(@inner_block) %>
