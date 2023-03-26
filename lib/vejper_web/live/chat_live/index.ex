@@ -14,6 +14,17 @@ defmodule VejperWeb.ChatLive.Index do
 
     rooms = Chat.list_rooms()
 
+    rooms =
+      rooms
+      |> Enum.map(fn room ->
+        {_id, entry} =
+          Enum.find(Presence.list("rooms"), {:ok, %{metas: []}}, fn {id, _data} ->
+            String.to_integer(id) == room.id
+          end)
+
+        Map.put(room, :online_users, Enum.count(entry[:metas]))
+      end)
+
     socket =
       assign(
         socket,
