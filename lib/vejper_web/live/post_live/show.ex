@@ -7,6 +7,7 @@ defmodule VejperWeb.PostLive.Show do
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:current_page, :posts)
       |> assign_form(Social.change_comment(%Social.Comment{}, %{}))
 
     {:ok, socket}

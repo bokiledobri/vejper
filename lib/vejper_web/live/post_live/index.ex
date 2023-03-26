@@ -16,6 +16,7 @@ defmodule VejperWeb.PostLive.Index do
       |> assign(:uploaded_files, [])
       |> allow_upload(:images, accept: ~w(.png .jpg .jpeg), max_entries: 10)
       |> assign(:meta, meta)
+      |> assign(:current_page, :posts)
 
     {:ok, stream(socket, :posts, posts, dom_id: &"post-#{&1.id}")}
   end
@@ -39,7 +40,7 @@ defmodule VejperWeb.PostLive.Index do
 
   defp apply_action(socket, :index, _params) do
     socket
-    |> assign(:page_title, "Najnovije objave")
+    |> assign(:page_title, "Objave")
     |> assign(:post, nil)
   end
 

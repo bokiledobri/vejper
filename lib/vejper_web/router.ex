@@ -26,19 +26,18 @@ defmodule VejperWeb.Router do
       on_mount: {VejperWeb.UserAuth, :mount_current_user} do
       live "/", HomeLive.Index, :index
       live "/objave", PostLive.Index, :index
+      live "/objave/nova", PostLive.Index, :new
       live "/objava/:id", PostLive.Show, :show
-
       live "/oglasi", AdLive.Index, :index
       live "/oglas/:id", AdLive.Show, :show
+      live "/oglasi/novi", AdLive.Index, :new
+      live "/oglas/:id/uredi", AdLive.Show, :edit
       live "/profili/novi", ProfileLive.Index, :new
       live "/profil/uredi", ProfileLive.Show, :edit
-      live "/objave/nova", PostLive.Index, :new
       live "/caskanje", ChatLive.Index, :index
       live "/caskanje/nova_soba", ChatLive.Index, :new
       live "/caskanje/sobe/:id/uredi", ChatLive.Index, :edit
       live "/caskanje/:id", ChatLive.Index, :show
-      live "/oglasi/novi", AdLive.Index, :new
-      live "/oglas/:id/uredi", AdLive.Show, :edit
       live "/nalog/potvrda/:token", UserConfirmationLive, :edit
       live "/nalog/potvrda/", UserConfirmationInstructionsLive, :new
       live "/profili", ProfileLive.Index, :index
@@ -58,12 +57,10 @@ defmodule VejperWeb.Router do
     # If your application does not have an admins-only section yet,
     # you can use Plug.BasicAuth to set up some basic authentication
     # as long as you are also using SSL (which you should anyway).
-    import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
       pipe_through :browser
 
-      live_dashboard "/dashboard", metrics: VejperWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
@@ -74,7 +71,10 @@ defmodule VejperWeb.Router do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     live_session :redirect_if_user_is_authenticated,
-      on_mount: [{VejperWeb.UserAuth, :redirect_if_user_is_authenticated}] do
+      on_mount: [
+        {VejperWeb.UserAuth, :mount_current_user},
+        {VejperWeb.UserAuth, :redirect_if_user_is_authenticated}
+      ] do
       live "/nalog/novi", UserRegistrationLive, :new
       live "/nalog/prijava", UserLoginLive, :new
       live "/nalog/nova_lozinka", UserForgotPasswordLive, :new
@@ -89,8 +89,8 @@ defmodule VejperWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [
-        {VejperWeb.UserAuth, :ensure_authenticated},
-        {VejperWeb.UserAuth, :mount_current_user}
+        {VejperWeb.UserAuth, :mount_current_user},
+        {VejperWeb.UserAuth, :ensure_authenticated}
       ] do
       live "/nalog/podesavanja/potvrda_adrese/:token", UserSettingsLive, :confirm_email
       live "/nalog/podesavanja", UserSettingsLive, :edit
@@ -98,6 +98,7 @@ defmodule VejperWeb.Router do
   end
 
   scope "/admin", VejperWeb do
+    import Phoenix.LiveDashboard.Router
     pipe_through [:browser, :require_authenticated_user, :require_admin]
 
     live_session :require_user_admin,
@@ -114,5 +115,7 @@ defmodule VejperWeb.Router do
       live "/kategorija/:id/uredi", AdminLive.Category, :edit
       live "/kategorije/nova", AdminLive.Index, :new
     end
+
+    live_dashboard "/dashboard", metrics: VejperWeb.Telemetry
   end
 end

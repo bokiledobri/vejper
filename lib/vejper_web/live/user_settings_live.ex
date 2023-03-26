@@ -71,6 +71,7 @@ defmodule VejperWeb.UserSettingsLive do
         :error ->
           put_flash(socket, :error, "Link za promenu email adrese nije validan ili je istekao")
       end
+      |> assign(:current_page, :user_settings)
 
     {:ok, push_navigate(socket, to: ~p"/nalog/podesavanja")}
   end

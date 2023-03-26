@@ -39,7 +39,7 @@ defmodule Vejper.Store.Ad do
   def changeset(ad, attrs, %Vejper.Store.Category{} = category, images) do
     attrs =
       cond do
-        Enum.count(category.fields) < Enum.count(attrs["fields"]) ->
+        attrs["fields"] && Enum.count(category.fields) < Enum.count(attrs["fields"]) ->
           Map.put(
             attrs,
             "fields",

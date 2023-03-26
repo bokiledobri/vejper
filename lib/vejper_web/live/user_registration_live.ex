@@ -44,6 +44,7 @@ defmodule VejperWeb.UserRegistrationLive do
       socket
       |> assign(trigger_submit: false, check_errors: false)
       |> assign_form(changeset)
+      |> assign(:current_page, :register)
 
     {:ok, socket, temporary_assigns: [form: nil]}
   end

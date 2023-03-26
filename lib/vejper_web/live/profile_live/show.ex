@@ -5,7 +5,11 @@ defmodule VejperWeb.ProfileLive.Show do
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     socket =
-      if socket.assigns.live_action == :edit, do: require_profile_completed(socket), else: socket
+      if socket.assigns.live_action == :edit,
+        do: require_profile_completed(socket),
+        else:
+          socket
+          |> assign(:current_page, :profiles)
 
     {:ok, socket}
   end

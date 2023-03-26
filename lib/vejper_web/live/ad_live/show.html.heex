@@ -1,6 +1,6 @@
 <div class="flex flex-col items-stretch gap-3">
   <div class="flex justify-between">
-    <.back navigate={~p"/oglasi"}>Nazad</.back>
+    <.back navigate={~p"/oglasi"}>Oglasi</.back>
     <.link
       :if={is_owner?(@ad, @current_user)}
       patch={~p"/oglas/#{@ad}/uredi"}

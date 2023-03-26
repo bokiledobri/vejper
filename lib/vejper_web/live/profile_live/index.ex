@@ -8,6 +8,7 @@ defmodule VejperWeb.ProfileLive.Index do
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:current_page, :profiles)
       |> stream(:profiles, Accounts.list_profiles())
 
     {:ok, socket}

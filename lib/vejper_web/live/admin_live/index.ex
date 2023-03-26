@@ -2,7 +2,6 @@ defmodule VejperWeb.AdminLive.Index do
   use VejperWeb, :live_view
 
   alias Vejper.Store
-  alias Vejper.Store.Category
   alias VejperWeb.Presence
   alias Vejper.Accounts
 
@@ -16,6 +15,7 @@ defmodule VejperWeb.AdminLive.Index do
       stream(socket, :categories, Store.list_categories())
       |> assign(:online_users, online)
       |> assign(:online_without_profile, without_profile)
+      |> assign(:current_page, :admin)
 
     {:ok, socket}
   end
@@ -25,19 +25,7 @@ defmodule VejperWeb.AdminLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :edit, %{"id" => id}) do
-    socket
-    |> assign(:page_title, "Uredi kategoriju")
-    |> assign(:category, Store.get_category!(id))
-  end
-
-  defp apply_action(socket, :new, _params) do
-    socket
-    |> assign(:page_title, "Dodaj kategoriju")
-    |> assign(:category, %Category{})
-  end
-
-  defp apply_action(socket, :index, _params) do
+  defp apply_action(socket, _action, _params) do
     socket
     |> assign(:page_title, "Admin")
     |> assign(:category, nil)

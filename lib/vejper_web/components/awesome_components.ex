@@ -53,7 +53,7 @@ defmodule VejperWeb.AwesomeComponents do
   def ad_item(assigns) do
     ~H"""
     <li
-      class="shadow-lg flex flex-col items-center w-4/5 md:w-[30rem] p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
+      class="shadow-lg flex flex-col items-center w-4/5 h-full md:w-[30rem] p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
       id={@id}
     >
       <div class="w-full flex justify-between items-center">
@@ -70,13 +70,13 @@ defmodule VejperWeb.AwesomeComponents do
           <Heroicons.trash class="w-7 h-7" />
         </.link>
       </div>
-      <.link class="flex flex-col justify-around items-center w-[90%]" navigate={@ad_link}>
+      <.link class="flex flex-col justify-around items-center w-[90%] h-[40vh]" navigate={@ad_link}>
         <h2 class="font-bold text-[1.5rem] text-center"><%= @item.title %></h2>
         <img
           :if={is_list(@item.images) && Enum.at(@item.images, 0) != nil}
           src={Enum.at(@item.images, 0).url}
           alt={@item.title}
-          class="w-full"
+          class="h-full object-contain"
         />
       </.link>
 
@@ -140,6 +140,23 @@ defmodule VejperWeb.AwesomeComponents do
         <.datetime dt={@item.inserted_at} />
       </.link>
     </li>
+    """
+  end
+
+  attr :href, :any, required: true
+  slot :inner_block, required: true
+  attr :method, :string, default: "get"
+  attr :added_class, :string, default: ""
+
+  def anchor(assigns) do
+    ~H"""
+    <.link
+      navigate={@href}
+      class={"hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded text-[1.2rem] leading-6 text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-300 font-semibold hover:text-zinc-700 basis-full text-center" <> if @added_class != "", do: " " <> @added_class, else: ""}
+      method={@method}
+    >
+      <%= render_slot(@inner_block) %>
+    </.link>
     """
   end
 end

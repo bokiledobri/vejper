@@ -33,6 +33,7 @@ defmodule VejperWeb.UserForgotPasswordLive do
   end
 
   def mount(_params, _session, socket) do
+    socket = socket |> assign(:current_page, :user_auth)
     {:ok, assign(socket, form: to_form(%{}, as: "user"))}
   end
 

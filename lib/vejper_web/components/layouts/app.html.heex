@@ -3,14 +3,55 @@
     <.link class="font-bold text-[1.5rem] text-[#ff0000]" navigate={~p"/"}>
       Vejper
     </.link>
-    <.link class="font-bold text-[1rem]" navigate={~p"/objave"}>Objave</.link>
-    <.link class="font-bold text-[1rem]" navigate={~p"/oglasi"}>Oglasi</.link>
+    <.anchor
+      href={~p"/objave"}
+      added_class={
+        if @current_page == :posts,
+          do:
+            "bg-zinc-300 dark:bg-zinc-700 border-solid border-b-2 border-black dark:border-white",
+          else: ""
+      }
+    >
+      Objave
+    </.anchor>
+    <.anchor
+      href={~p"/oglasi"}
+      added_class={
+        if @current_page == :ads,
+          do:
+            "bg-zinc-300 dark:bg-zinc-700 border-solid border-b-2 border-black dark:border-white",
+          else: ""
+      }
+    >
+      Oglasi
+    </.anchor>
     <%= if @current_user do %>
-      <.link class="font-bold text-[1rem]" navigate={~p"/caskanje"}>
-        <Heroicons.chat_bubble_bottom_center class="w-8 h-8" />
-      </.link>
-      <.link class="font-bold text-[1rem]" navigate={~p"/profili"}>Korisnici</.link>
-      <li>
+      <.anchor
+        href={~p"/caskanje"}
+        added_class={
+          if @current_page == :chat,
+            do:
+              "py-1 bg-zinc-300 dark:bg-zinc-700 border-solid border-b-2 border-black dark:border-white",
+            else: "py-1"
+        }
+      >
+        <Heroicons.chat_bubble_bottom_center
+          class="w-8 h-8 mx-auto text-center"
+          solid={@current_page == :chat}
+        />
+      </.anchor>
+      <.anchor
+        href={~p"/profili"}
+        added_class={
+          if @current_page == :profiles,
+            do:
+              "bg-zinc-300 dark:bg-zinc-700 border-solid border-b-2 border-black dark:border-white",
+            else: ""
+        }
+      >
+        Korisnici
+      </.anchor>
+      <li class="flex-shrink-0">
         <div
           phx-click={
             JS.show(

@@ -101,59 +101,19 @@
   </div>
 </.simple_form>
 <ul
-  class="flex flex-col gap-6 justify-center items-center md:flex-row md:flex-wrap"
+  class="flex flex-col gap-6 justify-center items-center md:flex-row md:flex-wrap md:items-stretch"
   phx-update="stream"
   phx-hook="InfiniteScroll"
   id="ads-list"
 >
-  <%= for {dom_id, ad} <- @streams.ads do %>
-    <li
-      class="shadow-lg flex flex-col items-center w-4/5 md:w-[30rem] p-5 bg-zinc-100 dark:bg-zinc-900 rounded"
+  <%= for {dom_id, item} <- @streams.ads do %>
+    <.ad_item
+      user_link={~p"/profil/#{item.user.profile.id}"}
+      ad_link={~p"/oglas/#{item.id}"}
+      item={item}
       id={dom_id}
-    >
-      <div class="w-full flex justify-between items-center">
-        <.link
-          navigate={~p"/profil/#{ad.user.profile.id}"}
-          class="flex flex-row gap-3 items-center ml-2"
-        >
-          <img src={ad.user.profile.image.url} class="w-10 h-10 rounded-full" />
-          <h4 class="text-[1rem] font-bold"><%= ad.user.profile.username %></h4>
-        </.link>
-        <.link
-          :if={is_owner?(ad, @current_user)}
-          class="mx-5"
-          phx-click={JS.push("delete", value: %{id: ad.id})}
-          data-confirm="Da li ste sigurni?"
-        >
-          <Heroicons.trash class="w-7 h-7" />
-        </.link>
-      </div>
-      <.link
-        class="flex flex-col justify-around items-center w-[90%]"
-        navigate={~p"/oglas/#{ad.id}"}
-      >
-        <h2 class="font-bold text-[1.5rem] text-center"><%= ad.title %></h2>
-        <img
-          :if={is_list(ad.images) && Enum.at(ad.images, 0) != nil}
-          src={Enum.at(ad.images, 0).url}
-          alt={ad.title}
-          class="w-full"
-        />
-      </.link>
-
-      <div class="grid grid-cols-3 basis-full my-5 w-full items-center">
-        <div class="font-bold text-[1.6rem]"><%= ad.price %>RSD</div>
-        <div class="font-bold text-[1.1rem] juctify-self-center text-center">
-          <%= ad.city %>
-        </div>
-        <div class={"font-bold justify-self-end truncate text-elipsis w-[10rem] text-end" <> case ad.state, do: ("Novo" -> " text-[#00ff00]"; "Neupotrebljivo" -> " text-[#ff0000]"; _-> "")}>
-          <%= ad.state %>
-        </div>
-      </div>
-      <p class={"mt-4 text-center text-zinc-900 dark:text-zinc-100 w-full"<>if is_list(ad.images) && Enum.at(ad.images, 0) !=nil, do:  " truncate text-elipsis", else: ""}>
-        <%= ad.description %>
-      </p>
-    </li>
+      current_user={@current_user}
+    />
   <% end %>
 </ul>
 

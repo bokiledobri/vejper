@@ -41,6 +41,7 @@ defmodule VejperWeb.UserLoginLive do
   def mount(_params, _session, socket) do
     email = live_flash(socket.assigns.flash, :email)
     form = to_form(%{"email" => email}, as: "user")
+    socket = socket |> assign(:current_page, :login)
     {:ok, assign(socket, form: form), temporary_assigns: [form: form]}
   end
 end

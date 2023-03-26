@@ -18,6 +18,7 @@ defmodule VejperWeb.AdLive.Index do
 
     socket =
       socket
+      |> assign(:current_page, :ads)
       |> assign(:after, meta.after)
       |> assign(:images, nil)
       |> assign(:prices, prices)

@@ -28,15 +28,16 @@ defmodule VejperWeb.UserResetPasswordLive do
 
       <p class="text-center mt-4">
         <.link href={~p"/nalog/novi"}>Novi nalog</.link>
-        |
-        <.link href={~p"/nalog/prijava"}>Prijava</.link>
+        | <.link href={~p"/nalog/prijava"}>Prijava</.link>
       </p>
     </div>
     """
   end
 
   def mount(params, _session, socket) do
-    socket = assign_user_and_token(socket, params)
+    socket =
+      assign_user_and_token(socket, params)
+      |> assign(:current_page, :user_auth)
 
     form_source =
       case socket.assigns do

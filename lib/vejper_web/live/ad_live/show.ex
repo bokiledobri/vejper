@@ -6,6 +6,10 @@ defmodule VejperWeb.AdLive.Show do
   on_mount {VejperWeb.AuthorizationHelpers, :ensure_profile_completed_for_mutating}
   @impl true
   def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> assign(:current_page, :ads)
+
     {:ok, socket}
   end
 

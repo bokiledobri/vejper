@@ -59,7 +59,7 @@ defmodule Vejper.Chat do
   """
   def create_room(%Vejper.Accounts.User{} = user, attrs \\ %{}) do
     user
-    |> Ecto.build_assoc(:chat_room)
+    |> Ecto.build_assoc(:owned_chat_rooms)
     |> Room.changeset(attrs)
     |> Repo.insert()
     |> broadcast(:room_created, :all)

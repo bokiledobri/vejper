@@ -17,6 +17,7 @@ defmodule VejperWeb.HomeLive.Index do
       )
       |> assign(:social_meta, social_meta)
       |> assign(:store_meta, store_meta)
+      |> assign(:current_page, :home)
 
     {:ok, socket}
   end

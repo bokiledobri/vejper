@@ -16,13 +16,13 @@ defmodule VejperWeb.UserConfirmationInstructionsLive do
 
     <p>
       <.link href={~p"/nalog/novi"}>Novi nalog</.link>
-      |
-      <.link href={~p"/nalog/prijava"}>Prijava</.link>
+      | <.link href={~p"/nalog/prijava"}>Prijava</.link>
     </p>
     """
   end
 
   def mount(_params, _session, socket) do
+    socket = socket |> assign(:current_page, :user_auth)
     {:ok, assign(socket, form: to_form(%{}, as: "user"))}
   end
 

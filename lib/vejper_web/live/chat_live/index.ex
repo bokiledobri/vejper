@@ -15,11 +15,17 @@ defmodule VejperWeb.ChatLive.Index do
     rooms = Chat.list_rooms()
 
     socket =
-      assign(socket, :current_user, Vejper.Repo.preload(socket.assigns.current_user, :chat_room))
+      assign(
+        socket,
+        :current_user,
+        Vejper.Repo.preload(socket.assigns.current_user, :owned_chat_rooms)
+      )
+      |> assign(:current_page, :chat)
       |> assign(:room, nil)
       |> assign(:online_users, [])
       |> assign(:banned, Accounts.banned?(socket.assigns.current_user.id, "chat"))
       |> assign(:rooms, rooms)
+      |> assign(:page_title, "Ćaskanje")
 
     {:ok, socket}
   end
