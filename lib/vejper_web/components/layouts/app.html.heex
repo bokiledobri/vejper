@@ -15,7 +15,7 @@
           else: ""
       }
     >
-      Objave
+      <Heroicons.newspaper class="w-8 h-8 mx-auto text-center" solid={@current_page == :posts} />
     </.anchor>
     <.anchor
       href={~p"/oglasi"}
@@ -26,7 +26,7 @@
           else: ""
       }
     >
-      Oglasi
+      <Heroicons.shopping_bag class="w-8 h-8 mx-auto text-center" solid={@current_page == :ads} />
     </.anchor>
     <%= if @current_user do %>
       <.anchor
@@ -52,7 +52,7 @@
             else: ""
         }
       >
-        Korisnici
+        <Heroicons.users class="w-8 h-8 mx-auto text-center" solid={@current_page == :profiles} />
       </.anchor>
       <div
         phx-click={
