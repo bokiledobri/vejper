@@ -178,6 +178,6 @@ defmodule VejperWeb.ProfileLive.Show do
     false
   end
 
-  defp page_title(:show), do: "Prikaži profil"
+  defp page_title(:show), do: "Profil"
   defp page_title(:edit), do: "Uredi profil"
 end

@@ -3,7 +3,10 @@
     class="chat-rooms-section absolute z-10 cursor-pointer top-5 left-5 w-8 h-8 md:hidden"
     phx-click={JS.toggle(to: ".chat-rooms-section")}
   />
-  <div :if={@banned} class="fixed z-50 p-5 inset-[20%] bg-white dark:bg-black">
+  <div
+    :if={@banned}
+    class="fixed z-50 p-5 inset-[20%] bg-white dark:bg-black border-solid border-2 border-black dark:border-white rounded"
+  >
     Vaš nalog je suspendovan sa ćaskanja do <%= humanize_datetime(@banned.until) %> od strane
     <.link navigate={~p"/profil/#{@banned.by.profile.id}"} class="font-bold">
       <%= @banned.by.profile.username %>
@@ -44,7 +47,7 @@
   </section>
   <section
     :if={@live_action == :show}
-    class="chat-rooms-section max-w-full h-[90vh] shrink-0 grow-0  basis-full md:basis-[60%] flex relative mx-2 px-2"
+    class="chat-rooms-section max-w-full h-[90vh] shrink-0 grow-0  basis-full md:basis-[70%] flex relative mx-2 px-2"
   >
     <ul
       class="mt-16 md:mt-2 flex flex-col-reverse gap-2 overflow-auto h-[90%] pb-6 basis-full items-start max-w-full"
