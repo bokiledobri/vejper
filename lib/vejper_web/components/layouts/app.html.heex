@@ -1,5 +1,5 @@
 <header class="fixed top-0 left-0 w-full z-30">
-  <ul class="bg-zinc-100 py-0 dark:bg-zinc-800 relative z-10 flex items-center h-[3.5rem] gap-4 px-4 sm:px-6 lg:px-8 justify-between">
+  <div class="bg-zinc-100 py-0 dark:bg-zinc-800 relative z-10 flex items-center h-[3.5rem] gap-4 px-4 sm:px-6 lg:px-8 justify-between">
     <.link class="font-bold text-[1.5rem] text-[#ff0000]" navigate={~p"/"}>
       Vejper
     </.link>
@@ -51,7 +51,7 @@
       >
         Korisnici
       </.anchor>
-      <li class="flex-shrink-0">
+      <div class="flex-shrink-0">
         <div
           phx-click={
             JS.show(
@@ -143,20 +143,32 @@
             </.link>
           </div>
         </div>
-      </li>
+      </div>
     <% else %>
-      <li>
-        <.anchor href={~p"/nalog/prijava"}>
-          Prijava
-        </.anchor>
-      </li>
-      <li>
-        <.anchor href={~p"/nalog/novi"}>
-          Novi nalog
-        </.anchor>
-      </li>
+      <.anchor
+        added_class={
+          if @current_page == :login,
+            do:
+              "bg-zinc-300 dark:bg-zinc-700 border-solid border-b-2 border-black dark:border-white",
+            else: ""
+        }
+        href={~p"/nalog/prijava"}
+      >
+        Prijava
+      </.anchor>
+      <.anchor
+        added_class={
+          if @current_page == :register,
+            do:
+              "bg-zinc-300 dark:bg-zinc-700 border-solid border-b-2 border-black dark:border-white",
+            else: ""
+        }
+        href={~p"/nalog/novi"}
+      >
+        Novi nalog
+      </.anchor>
     <% end %>
-  </ul>
+  </div>
 </header>
 <main class="px-4 py-10 sm:px-6 lg:px-8 mt-[2rem]">
   <div class="mx-auto">

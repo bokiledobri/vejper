@@ -1,4 +1,4 @@
-<div class="flex relative">
+<div class="flex relative md:grid md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4">
   <Heroicons.bars_3
     class="chat-rooms-section absolute z-10 cursor-pointer top-5 left-5 w-8 h-8 md:hidden"
     phx-click={JS.toggle(to: ".chat-rooms-section")}
@@ -12,7 +12,7 @@
       <%= @banned.by.profile.username %>
     </.link>
   </div>
-  <section class="chat-rooms-section basis-full rounded  hidden md:block shrink grow h-[90vh] bg-zinc-50 dark:bg-zinc-900 px-2 mx-2">
+  <section class="chat-rooms-section basis-full rounded  hidden md:block shrink grow h-[90vh] md:col-span-2 lg:col-span-1 bg-zinc-50 dark:bg-zinc-900 px-2 mx-2">
     <ul id="chat-rooms" class="flex flex-col pr-2" phx-update="stream">
       <li
         :if={is_chat_mod?(@current_user)}
@@ -47,7 +47,7 @@
   </section>
   <section
     :if={@live_action == :show}
-    class="chat-rooms-section max-w-full h-[90vh] shrink-0 grow-0  basis-full md:basis-[70%] flex relative mx-2 px-2"
+    class="chat-rooms-section max-w-full h-[90vh] shrink-0 grow-0  basis-full md:col-span-3 lg:col-span-2 xl:col-span-3 flex relative mx-2 px-2"
   >
     <ul
       class="mt-16 md:mt-2 flex flex-col-reverse gap-2 overflow-auto h-[90%] pb-6 basis-full items-start max-w-full"
