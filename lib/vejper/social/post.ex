@@ -23,6 +23,7 @@ defmodule Vejper.Social.Post do
     post
     |> cast(attrs, [:title, :body, :reactions])
     |> validate_required([:title, :body], message: "obavezno polje")
+    |> validate_length(:title, max: 32, message: "Najviše 32 znaka")
     |> put_assoc(:images, images)
   end
 end

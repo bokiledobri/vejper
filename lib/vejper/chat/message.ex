@@ -15,6 +15,7 @@ defmodule Vejper.Chat.Message do
   def changeset(message, attrs) do
     message
     |> cast(attrs, [:body, :state])
-    |> validate_required([:body, :state])
+    |> validate_required([:body], message: "Prazna poruka")
+    |> validate_length(:body, max: 255, message: "Najviše 255 znakova")
   end
 end

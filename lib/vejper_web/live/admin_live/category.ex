@@ -6,6 +6,10 @@ defmodule VejperWeb.AdminLive.Category do
 
   @impl true
   def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> assign(:current_page, :admin)
+
     {:ok, socket}
   end
 

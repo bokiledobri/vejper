@@ -17,15 +17,15 @@ defmodule Vejper.Chat.Room do
   @doc false
   def changeset(room, %{"users" => users} = attrs) do
     room
-    |> cast(attrs, [:name])
+    |> changeset(attrs)
     |> put_assoc(:users, users)
-    |> validate_required([:name])
   end
 
   @doc false
   def changeset(room, attrs) do
     room
     |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> validate_required([:name], message: "Obavezno polje")
+    |> validate_length(:name, max: 12, message: "Najviše 12 znakova")
   end
 end

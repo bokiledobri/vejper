@@ -16,6 +16,6 @@ defmodule Vejper.Store.Category do
   def changeset(category, attrs) do
     category
     |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> validate_required([:name], message: "Obavezno polje")
   end
 end

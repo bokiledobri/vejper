@@ -24,6 +24,8 @@ defmodule Vejper.Accounts.Profile do
     profile
     |> cast(attrs, [:username, :city, :date_of_birth])
     |> validate_required([:username], message: "obavezno polje")
+    |> validate_length(:username, max: 20, message: "Najviše 20 znakova")
+    |> validate_length(:city, max: 20, message: "Najviše 20 znakova")
     |> unsafe_validate_unique(:username, Vejper.Repo, message: "korisničko ime je već u upotrebi")
     |> unique_constraint(:username, message: "korisničko ime je već u upotrebi")
     |> validate_xrated()

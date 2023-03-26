@@ -15,5 +15,6 @@ defmodule Vejper.Social.Comment do
     comment
     |> cast(attrs, [:body])
     |> validate_required([:body], message: "prazan komentar")
+    |> validate_length(:body, max: 255, message: "Najviše 255 znakova")
   end
 end

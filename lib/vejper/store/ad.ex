@@ -111,6 +111,8 @@ defmodule Vejper.Store.Ad do
     ad
     |> cast(attrs, [:title, :description, :price, :city, :state])
     |> cast_embed(:fields)
+    |> validate_length(:city, max: 20, message: "Najviše 20 znakova")
+    |> validate_length(:title, max: 32, message: "Najviše 32 znaka")
     |> put_assoc(:images, images)
     |> put_assoc(:category, category)
     |> validate_required([:title, :price, :city, :state], message: "Obavezno polje")
