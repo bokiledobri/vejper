@@ -82,7 +82,7 @@
     />
     <span><%= @post.reactions %></span>
   </div>
-  <.datetime id={@post.id} dt={@post.inserted_at} />
+  <.datetime id={"post-#{@post.id}"} dt={@post.inserted_at} />
   <%= if @current_user && @current_user.profile do %>
     <.awesome_input
       show={@current_user.profile}

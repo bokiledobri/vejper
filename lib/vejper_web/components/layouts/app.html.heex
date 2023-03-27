@@ -10,25 +10,25 @@
       <%= if @current_user.profile do %>
         <.nav_link href={~p"/objave"} active={@current_page == :posts}>
           <Heroicons.newspaper
-            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
+            class="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 mx-auto text-center"
             solid={@current_page == :posts}
           />
         </.nav_link>
         <.nav_link href={~p"/oglasi"} active={@current_page == :ads}>
           <Heroicons.shopping_bag
-            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
+            class="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 mx-auto text-center"
             solid={@current_page == :ads}
           />
         </.nav_link>
         <.nav_link href={~p"/caskanje"} active={@current_page == :chat}>
           <Heroicons.chat_bubble_bottom_center
-            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
+            class="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 mx-auto text-center"
             solid={@current_page == :chat}
           />
         </.nav_link>
         <.nav_link href={~p"/profili"} active={@current_page == :profiles}>
           <Heroicons.users
-            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
+            class="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 mx-auto text-center"
             solid={@current_page == :profiles}
           />
         </.nav_link>

@@ -1,9 +1,10 @@
-
-
 dateTime = () => {
     return {
         mounted() {
-            let sentAt = JSON.parse(JSON.stringify(this.el.innerText))
+            this.updated()
+        },
+        updated() {
+            let sentAt = JSON.parse(JSON.stringify(this.el.attributes.tim.value))
             date = new Date(sentAt)
             this.el.innerText = timeAgo(date)
             setInterval(() => {
@@ -18,9 +19,11 @@ dateTime = () => {
 export default dateTime
 const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - date) / 1000);
+
     const dt = " u " + date.toLocaleTimeString("en-US", { timeZone: "Europe/Belgrade", hour12: false, hour: "2-digit", minute: "2-digit" })
 
     let interval = Math.floor(seconds / 31536000);
+
     if (interval > 4) {
         return 'pre ' + interval + ' godina';
     }

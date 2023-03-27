@@ -1,8 +1,9 @@
 defmodule VejperWeb.AwesomeComponents do
   use Phoenix.Component
   import VejperWeb.CoreComponents
+  import VejperWeb.DateTimeComponent
   alias Phoenix.LiveView.JS
-  import VejperWeb.{DateTimeComponent, AuthorizationHelpers}
+  import VejperWeb.AuthorizationHelpers
   attr :show, :any
   attr :form, :any, required: true
   attr :form_id, :string, required: true
