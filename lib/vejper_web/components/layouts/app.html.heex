@@ -1,66 +1,37 @@
 <header class="fixed top-0 left-0 w-full z-30">
   <div class="bg-zinc-100 py-0 border-solid border-zinc-600 dark:border-zinc-400 border-b-2 dark:bg-zinc-800 relative z-10 flex items-stretch box-content h-[3.5rem] pr-4 sm:pr-6 lg:pr-8 justify-between">
     <.link
-      class={"text-center relative top-[2px] font-bold text-[1.5rem] text-purple-500 pt-2 text-start px-1 md:px-6"<> if @current_page==:home, do: " border-solid border-b-2 border-purple-500", else: ""}
+      class={"text-center relative top-[2px] font-bold text-[1.5rem] text-brand pt-2 text-start px-1 md:px-6"<> if @current_page==:home, do: " border-solid border-b-2 border-brand", else: ""}
       navigate={~p"/"}
     >
       Vejper
     </.link>
     <%= if @current_user do %>
       <%= if @current_user.profile do %>
-        <.anchor
-          href={~p"/objave"}
-          added_class={
-            if @current_page == :posts,
-              do:
-                "cursor-default hover:bg-zinc-100 dark:hover:bg-zinc-800 border-solid border-b-2 border-purple-500 text-purple-500 hover:text-purple-500 dark:text-purple-500 dark:hover:text-purple-500 hover:border-purple-500",
-              else: ""
-          }
-        >
+        <.nav_link href={~p"/objave"} active={@current_page == :posts}>
           <Heroicons.newspaper
-            class="w-8 h-8 mx-auto text-center"
+            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
             solid={@current_page == :posts}
           />
-        </.anchor>
-        <.anchor
-          href={~p"/oglasi"}
-          added_class={
-            if @current_page == :ads,
-              do:
-                "cursor-default hover:bg-zinc-100 dark:hover:bg-zinc-800 border-solid border-b-2 border-purple-500 text-purple-500 hover:text-purple-500 dark:text-purple-500 dark:hover:text-purple-500 hover:border-purple-500",
-              else: ""
-          }
-        >
+        </.nav_link>
+        <.nav_link href={~p"/oglasi"} active={@current_page == :ads}>
           <Heroicons.shopping_bag
-            class="w-8 h-8 mx-auto text-center"
+            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
             solid={@current_page == :ads}
           />
-        </.anchor>
-        <.anchor
-          href={~p"/caskanje"}
-          added_class={
-            if @current_page == :chat,
-              do:
-                "cursor-default hover:bg-zinc-100 dark:hover:bg-zinc-800 border-solid border-b-2 border-purple-500 text-purple-500 hover:text-purple-500 dark:text-purple-500 dark:hover:text-purple-500 hover:border-purple-500",
-              else: "py-1"
-          }
-        >
+        </.nav_link>
+        <.nav_link href={~p"/caskanje"} active={@current_page == :chat}>
           <Heroicons.chat_bubble_bottom_center
-            class="w-8 h-8 mx-auto text-center"
+            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
             solid={@current_page == :chat}
           />
-        </.anchor>
-        <.anchor
-          href={~p"/profili"}
-          added_class={
-            if @current_page == :profiles,
-              do:
-                "cursor-default hover:bg-zinc-100 dark:hover:bg-zinc-800 border-solid border-b-2 border-purple-500 text-purple-500 hover:text-purple-500 dark:text-purple-500 dark:hover:text-purple-500 hover:border-purple-500",
-              else: ""
-          }
-        >
-          <Heroicons.users class="w-8 h-8 mx-auto text-center" solid={@current_page == :profiles} />
-        </.anchor>
+        </.nav_link>
+        <.nav_link href={~p"/profili"} active={@current_page == :profiles}>
+          <Heroicons.users
+            class="w-5 h-5 sm:w-7 sm-h-7 md:w-8 md:h-8 mx-auto text-center"
+            solid={@current_page == :profiles}
+          />
+        </.nav_link>
       <% else %>
         <span class="grow text-center self-center basis-full">
           <.link navigate={~p"/profili/novi"} class="py-2 font-bold">
@@ -161,28 +132,12 @@
         </div>
       </div>
     <% else %>
-      <.anchor
-        added_class={
-          if @current_page == :login,
-            do:
-              "cursor-default hover:bg-zinc-100 dark:hover:bg-zinc-800 border-solid border-b-2 border-purple-500 text-purple-500 hover:text-purple-500 dark:text-purple-500 dark:hover:text-purple-500 hover:border-purple-500",
-            else: ""
-        }
-        href={~p"/nalog/prijava"}
-      >
+      <.nav_link active={@current_page == :login} href={~p"/nalog/prijava"}>
         Prijava
-      </.anchor>
-      <.anchor
-        added_class={
-          if @current_page == :register,
-            do:
-              "cursor-default hover:bg-zinc-100 dark:hover:bg-zinc-800 border-solid border-b-2 border-purple-500 text-purple-500 hover:text-purple-500 dark:text-purple-500 dark:hover:text-purple-500 hover:border-purple-500",
-            else: ""
-        }
-        href={~p"/nalog/novi"}
-      >
+      </.nav_link>
+      <.nav_link active={@current_page == :register} href={~p"/nalog/novi"}>
         Novi nalog
-      </.anchor>
+      </.nav_link>
     <% end %>
   </div>
 </header>

@@ -89,7 +89,7 @@ defmodule VejperWeb.AwesomeComponents do
           <%= @item.state %>
         </div>
       </div>
-      <p class={"mt-4 text-center text-zinc-900 dark:text-zinc-100 w-full"<>if is_list(@item.images) && Enum.at(@item.images, 0) !=nil, do:  " truncate text-elipsis", else: ""}>
+      <p class={"my-4 md:pb-5 text-center text-zinc-900 dark:text-zinc-100 w-full"<>if is_list(@item.images) && Enum.at(@item.images, 0) !=nil, do:  " truncate text-elipsis", else: ""}>
         <%= @item.description %>
       </p>
     </li>
@@ -146,16 +146,16 @@ defmodule VejperWeb.AwesomeComponents do
   attr :href, :any, required: true
   slot :inner_block, required: true
   attr :method, :string, default: "get"
-  attr :added_class, :string, default: ""
+  attr :active, :boolean, default: false
 
-  def anchor(assigns) do
+  def nav_link(assigns) do
     ~H"""
     <.link
       navigate={@href}
-      class={"hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 pt-4 rounded-t-md text-lg relative top-[2px]
+      class={"hover:bg-zinc-300 dark:hover:bg-zinc-700 p-1 md:p-2 pt-4 rounded-t-md text-lg relative top-[2px]
       hover:border-zinc-500 border-solid hover:border-b-2
       leading-6 text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-300
-      font-semibold hover:text-zinc-700 basis-full text-center" <> if @added_class != "", do: " " <> @added_class, else: ""}
+      font-semibold hover:text-zinc-700 basis-full text-center" <> if @active, do: " cursor-default hover:bg-zinc-100 dark:hover:bg-zinc-800 border-solid border-b-2 border-brand text-brand hover:text-brand dark:text-brand dark:hover:text-brand hover:border-brand", else: ""}
       method={@method}
     >
       <%= render_slot(@inner_block) %>
