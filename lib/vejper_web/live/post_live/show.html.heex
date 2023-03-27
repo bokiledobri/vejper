@@ -82,7 +82,7 @@
     />
     <span><%= @post.reactions %></span>
   </div>
-  <.datetime dt={@post.inserted_at} />
+  <.datetime id={@post.id} dt={@post.inserted_at} />
   <%= if @current_user && @current_user.profile do %>
     <.awesome_input
       show={@current_user.profile}
@@ -122,6 +122,7 @@
           class="py-1 self-center w-8 h-8 cursor-pointer"
         />
         <.datetime
+          id={comment.id}
           dt={comment.inserted_at}
           class="absolute right-2 bottom-1 font-italic text-[0.7rem] "
         />

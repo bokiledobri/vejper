@@ -92,6 +92,7 @@ defmodule VejperWeb.AwesomeComponents do
       <p class={"my-4 md:pb-5 text-center text-zinc-900 dark:text-zinc-100 w-full"<>if is_list(@item.images) && Enum.at(@item.images, 0) !=nil, do:  " truncate text-elipsis", else: ""}>
         <%= @item.description %>
       </p>
+      <.datetime id={@item.id} dt={@item.inserted_at} />
     </li>
     """
   end
@@ -137,7 +138,7 @@ defmodule VejperWeb.AwesomeComponents do
           />
           <span><%= @item.reactions %></span>
         </div>
-        <.datetime dt={@item.inserted_at} />
+        <.datetime id={@item.id} dt={@item.inserted_at} />
       </.link>
     </li>
     """

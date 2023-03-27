@@ -23,6 +23,7 @@ import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import infiniteScroll from "./infiniteScroll"
 import { dropzone, dropped, queryAds } from "./hooks"
+import dateTime from "./datetime"
 let documentScroll = () => {
     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
     let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
@@ -51,7 +52,8 @@ let Hooks = {
     MessagesInfiniteScroll: messagesInfiniteScroll,
     QueryAds: queryAds(),
     Dropzone: dropzone(),
-    Dropped: dropped()
+    Dropped: dropped(),
+    DateTime: dateTime()
 }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {

@@ -2,18 +2,20 @@ defmodule VejperWeb.DateTimeComponent do
   use Phoenix.Component
   attr :dt, :any, required: true
   attr :class, :string, default: "self-end italic text-[0.7rem]"
+  attr :id, :integer, required: true
 
   def datetime(assigns) do
     ~H"""
-    <time class={@class}>
-      <%= dt = DateTime.from_naive!(@dt, "Europe/Belgrade")
-      diff = dt.utc_offset + dt.std_offset
-      dt = DateTime.add(dt, diff)
-      date = DateTime.to_date(dt)
+    <time id={"time-#{@id}"} class={@class} phx-hook="DateTime">
+      <%= dt = DateTime.from_naive!(@dt, "UTC")
+      DateTime.to_iso8601(dt)
+      #      diff = dt.utc_offset + dt.std_offset
+      #     dt = DateTime.add(dt, diff)
+      #    date = DateTime.to_date(dt)
+      #
+      #     time = DateTime.to_time(dt)
 
-      time = DateTime.to_time(dt)
-
-      transform_date(date) |> transform_time(time, diff) %>
+      #    transform_date(date) |> transform_time(time, diff) %>
     </time>
     """
   end
