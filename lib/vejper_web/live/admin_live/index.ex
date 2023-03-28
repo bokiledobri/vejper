@@ -4,6 +4,7 @@ defmodule VejperWeb.AdminLive.Index do
   alias Vejper.Store
   alias VejperWeb.Presence
   alias Vejper.Accounts
+  alias Vejper.Store.Category
 
   @impl true
   def mount(_params, _session, socket) do
@@ -28,7 +29,7 @@ defmodule VejperWeb.AdminLive.Index do
   defp apply_action(socket, _action, _params) do
     socket
     |> assign(:page_title, "Admin")
-    |> assign(:category, nil)
+    |> assign(:category, %Category{})
   end
 
   @impl true

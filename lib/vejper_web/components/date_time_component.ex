@@ -15,77 +15,20 @@ defmodule VejperWeb.DateTimeComponent do
       <%= dt = DateTime.from_naive!(@dt, "Europe/Belgrade")
       diff = dt.utc_offset + dt.std_offset
       dt = DateTime.add(dt, diff)
-      date = DateTime.to_date(dt)
 
       time = DateTime.to_time(dt)
 
       dif = System.os_time(:second) - (DateTime.from_naive!(@dt, "UTC") |> DateTime.to_unix(:second))
 
-      time_ago(dif, time)
-      # transform_date(date) |> transform_time(time, diff) %>
+      time_ago(dif, time) %>
     </time>
     """
-  end
-
-  defp transform_date(date) do
-    case Date.diff(Date.utc_today(), date) do
-      0 ->
-        "Danas"
-
-      1 ->
-        "Juče"
-
-      2 ->
-        "Prekjuče"
-
-      n when n < 11 ->
-        "Pre " <> Integer.to_string(n) <> " dana"
-
-      _ ->
-        Integer.to_string(date.day) <>
-          "." <> Integer.to_string(date.month) <> "." <> Integer.to_string(date.year)
-    end
-  end
-
-  defp transform_time(date, time, diff) do
-    now = Time.utc_now() |> Time.add(diff)
-
-    if date == "Danas" do
-      case now |> Time.diff(time, :second) do
-        n when n < 60 ->
-          "Upravo sada"
-
-        n when n < 1800 ->
-          "Pre " <> Integer.to_string(Integer.floor_div(n, 60)) <> " minuta"
-
-        n when n < 2700 ->
-          "Pre pola sata"
-
-        n when n < 4500 ->
-          "Pre sat vremena"
-
-        n when n < 5400 ->
-          "Pre dva sata"
-
-        n when n < 9000 ->
-          "Pre tri sata"
-
-        _ ->
-          ("Danas u " <> Time.to_string(time))
-          |> String.replace(~r/\.[^.]*?$/, "")
-          |> String.slice(0..-4)
-      end
-    else
-      (date <> " u " <> Time.to_string(time))
-      |> String.replace(~r/\.[^.]*?$/, "")
-      |> String.slice(0..-4)
-    end
   end
 
   def time_ago(seconds, time) do
     years = div(seconds, 31_536_000)
     months = div(seconds, 2_592_000)
-    days = div(seconds, 864_00)
+    days = div(seconds, 86_400)
     hours = div(seconds, 3600)
     minutes = div(seconds, 60)
 
